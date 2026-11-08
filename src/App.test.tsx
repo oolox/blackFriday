@@ -25,7 +25,7 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('textbox', { name: 'Brief' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'New' })).toBeInTheDocument();
     expect(screen.getByRole('dialog', { name: 'Generate New Map' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
     expect(screen.queryByRole('application', { name: 'Shop floor' })).not.toBeInTheDocument();
     expect(screen.queryByText('Assets')).not.toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Sort ascending' })).toBeInTheDocument();
@@ -51,7 +51,7 @@ describe('AppRoutes', () => {
 
     await user.click(screen.getByRole('button', { name: 'New' }));
     expect(screen.getByRole('dialog', { name: 'Generate New Map' })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+    await user.click(screen.getByRole('button', { name: 'Close' }));
     expect(screen.queryByRole('dialog', { name: 'Generate New Map' })).not.toBeInTheDocument();
     expect(screen.getByRole('application', { name: 'Shop floor' })).toBeInTheDocument();
   });

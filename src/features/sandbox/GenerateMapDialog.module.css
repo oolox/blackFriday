@@ -114,6 +114,24 @@
 
 .actions {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   gap: var(--space-sm);
+}
+
+.reasoning {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  margin-right: auto;
+}
+
+.reasoningSelect {
+  padding: var(--space-sm) var(--space-md);
+  font: inherit;
+  font-size: var(--font-size-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
 }

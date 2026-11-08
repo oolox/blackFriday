@@ -40,7 +40,7 @@ describe('streamCompletion', () => {
           { role: 'system', content: 'system' },
           { role: 'user', content: 'user' },
         ],
-        thinking: true,
+        reasoning: 'high',
         onChunk: (delta) => {
           text += delta;
         },
@@ -64,6 +64,31 @@ describe('streamCompletion', () => {
     expect(body.reasoning_effort).toBe('high');
     expect(body.thinking).toEqual({ type: 'enabled' });
     expect(body.response_format).toEqual({ type: 'text' });
+  });
+
+  it('turns thinking off without an effort, and sends max when asked', async () => {
+    vi.stubEnv('VITE_FAL_KEY', 'test-key');
+    const fetchMock = vi.fn(async () => sse(['data: {"choices":[{"delta":{"content":"ok"}}]}\n', 'data: [DONE]\n']));
+    vi.stubGlobal('fetch', fetchMock);
+    const run = (reasoning: 'off' | 'max') =>
+      new Promise<void>((resolve, reject) => {
+        void streamCompletion({
+          messages: [{ role: 'user', content: 'layout' }],
+          reasoning,
+          onChunk: () => undefined,
+          onDone: resolve,
+          onError: reject,
+        });
+      });
+    await run('off');
+    await run('max');
+    const bodies = fetchMock.mock.calls.map((call) =>
+      JSON.parse(String((call as [string, RequestInit])[1].body)) as Record<string, unknown>,
+    );
+    expect(bodies[0]?.thinking).toEqual({ type: 'disabled' });
+    expect(bodies[0]?.reasoning_effort).toBeUndefined();
+    expect(bodies[1]?.thinking).toEqual({ type: 'enabled' });
+    expect(bodies[1]?.reasoning_effort).toBe('max');
   });
 
   it('drops a partial reply when the request is aborted', async () => {

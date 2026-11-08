@@ -1,6 +1,6 @@
 import type { GeneratedMap } from '../../types/map';
 import type { Tile } from '../../types/tile';
-import { streamCompletion } from '../fal/chatService';
+import { streamCompletion, type ReasoningEffort } from '../fal/chatService';
 import { acceptLayoutFence } from './acceptLayoutFence';
 import { layoutSetupPrompt, layoutSystemPrompt } from './layoutPrompt';
 
@@ -13,6 +13,7 @@ export interface GenerateLlmRequest {
   tiles: readonly Tile[];
   seed: string;
   brief: string;
+  reasoning: ReasoningEffort;
   signal?: AbortSignal;
   onTrace?: (delta: LayoutTraceDelta) => void;
 }
@@ -32,7 +33,7 @@ export async function generateLlmMap(
             content: layoutSetupPrompt(request.seed, request.brief),
           },
         ],
-        thinking: true,
+        reasoning: request.reasoning,
         signal: request.signal,
         onChunk: (delta) => {
           text += delta;

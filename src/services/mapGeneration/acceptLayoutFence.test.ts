@@ -222,6 +222,45 @@ describe('acceptLayoutFence', () => {
     expect(mall.map.layout.openings.every((opening) => opening.kind === 'passage')).toBe(true);
   });
 
+  it('keeps a floor that misses the claimed square footage', () => {
+    const outside = [];
+    for (let y = 5; y <= 7; y++) {
+      for (let x = 5; x <= 7; x++) {
+        outside.push({ x, y });
+      }
+    }
+    const result = accept(
+      fence(
+        {
+          width: 13,
+          height: 13,
+          buildingType: 'residential',
+          outside,
+          rooms: [
+            {
+              id: 'room-1',
+              role: 'living',
+              rects: [
+                { x: 1, y: 1, width: 11, height: 3 },
+                { x: 1, y: 9, width: 11, height: 3 },
+                { x: 1, y: 4, width: 3, height: 5 },
+                { x: 9, y: 4, width: 3, height: 5 },
+              ],
+            },
+          ],
+        },
+        1292,
+      ),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(result.map.interiorTiles).toBe(96);
+    expect(result.map.parameters.areaSquareFeet).toBe(1033);
+    expect(result.map.parameters.roomCount).toBe(1);
+  });
+
   it('rejects prose, the wrong tool, and a bad fence', () => {
     expect(accept('I would put the hall on the south.').ok).toBe(false);
     expect(

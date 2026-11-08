@@ -9,8 +9,6 @@ import {
   type TileCoord,
 } from '../../types/map';
 import type { Tile } from '../../types/tile';
-import { interiorTileTarget } from './generateBspLayout';
-import { layoutTolerance } from './layoutPrompt';
 import { planOpenings } from './planOpenings';
 import { randomSource } from './randomSource';
 import { rasterizeStruct } from './rasterizeStruct';
@@ -18,6 +16,12 @@ import { rasterizeStruct } from './rasterizeStruct';
 export const LLM_GENERATOR_ID = 'llm-v1';
 
 const MIN_SIDE = 3;
+/** 1 square foot in square meters. The grid is 1 m per tile. */
+const SQ_FT_TO_SQ_M = 0.092903;
+
+function squareFeetFromTiles(floorTiles: number): number {
+  return Math.max(1, Math.round(floorTiles / SQ_FT_TO_SQ_M));
+}
 
 interface FenceRect {
   x: number;
@@ -33,8 +37,6 @@ interface FenceRoom {
 }
 
 interface FenceData {
-  areaSquareFeet: number;
-  roomCount: number;
   width: number;
   height: number;
   buildingType: BuildingType;
@@ -63,21 +65,11 @@ export function acceptLayoutFence(
   if (roomError) {
     return { ok: false, errors: [roomError] };
   }
-  if (data.roomCount !== rooms.length) {
-    return { ok: false, errors: ['roomCount does not match the room list'] };
-  }
-  const target = interiorTileTarget(data.areaSquareFeet);
   const floor = rooms.reduce(
     (sum, room) =>
       sum + roomRects(room).reduce((partSum, part) => partSum + part.width * part.height, 0),
     0,
   );
-  if (Math.abs(floor - target) > layoutTolerance(target)) {
-    return {
-      ok: false,
-      errors: [`floor area ${floor} is outside ${layoutTolerance(target)} tiles of ${target}`],
-    };
-  }
   const layout = {
     width: data.width,
     height: data.height,
@@ -112,8 +104,8 @@ export function acceptLayoutFence(
     ok: true,
     map: {
       parameters: {
-        areaSquareFeet: data.areaSquareFeet,
-        roomCount: data.roomCount,
+        areaSquareFeet: squareFeetFromTiles(floor),
+        roomCount: rooms.length,
         buildingType: data.buildingType,
       },
       seed: request.seed,
@@ -174,12 +166,6 @@ function readData(value: unknown): { ok: true; data: FenceData } | { ok: false; 
   if (!isRecord(value)) {
     return { ok: false, errors: ['layout data was missing'] };
   }
-  if (typeof value.areaSquareFeet !== 'number' || !(value.areaSquareFeet > 0)) {
-    return { ok: false, errors: ['areaSquareFeet must be a positive number'] };
-  }
-  if (!Number.isInteger(value.roomCount) || (value.roomCount as number) < 1) {
-    return { ok: false, errors: ['roomCount must be a positive integer'] };
-  }
   const width = value.width;
   const height = value.height;
   if (!isBoxEdge(width) || !isBoxEdge(height)) {
@@ -229,8 +215,6 @@ function readData(value: unknown): { ok: true; data: FenceData } | { ok: false; 
   return {
     ok: true,
     data: {
-      areaSquareFeet: value.areaSquareFeet,
-      roomCount: value.roomCount as number,
       width,
       height,
       buildingType: value.buildingType,

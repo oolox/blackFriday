@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Button } from '../../components/ui/Button/Button';
 import { FullScreenModal } from '../../components/ui/FullScreenModal';
 import { TextInput } from '../../components/ui/TextInput/TextInput';
+import type { ReasoningEffort } from '../../services/fal/chatService';
 import type { LayoutTraceDelta } from '../../services/mapGeneration/generateLlmMap';
 import type { BuildingType, MapParameters } from '../../types/map';
 import { splitLogBlocks, type LogBlock } from './layoutLog';
@@ -13,8 +14,16 @@ const TYPES: { value: BuildingType; label: string }[] = [
   { value: 'commercial', label: 'Commercial' },
 ];
 
+const REASONING: { value: ReasoningEffort; label: string }[] = [
+  { value: 'off', label: 'Off' },
+  { value: 'low', label: 'Low' },
+  { value: 'high', label: 'High' },
+  { value: 'max', label: 'Max' },
+];
+
 export type MapGenerateRequest =
-  { kind: 'algo'; parameters: MapParameters } | { kind: 'llm'; brief: string };
+  | { kind: 'algo'; parameters: MapParameters }
+  | { kind: 'llm'; brief: string; reasoning: ReasoningEffort };
 
 export interface GenerateMapDialogProps {
   open: boolean;
@@ -40,6 +49,7 @@ export function GenerateMapDialog({
   const [rooms, setRooms] = useState(String(parameters.roomCount));
   const [buildingType, setBuildingType] = useState<BuildingType>(parameters.buildingType);
   const [brief, setBrief] = useState('');
+  const [reasoning, setReasoning] = useState<ReasoningEffort>('off');
   const [trace, setTrace] = useState<LayoutTraceDelta[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -92,7 +102,10 @@ export function GenerateMapDialog({
       setError(null);
       setTrace([]);
       stickToEnd.current = true;
-      const failure = await onGenerate({ kind: 'llm', brief: text }, appendTrace);
+      const failure = await onGenerate(
+        { kind: 'llm', brief: text, reasoning },
+        appendTrace,
+      );
       setPending(false);
       setError(failure);
       return;
@@ -121,7 +134,7 @@ export function GenerateMapDialog({
     <FullScreenModal
       open={open}
       onClose={onCancel}
-      dismissible={canCancel}
+      dismissible={false}
       ariaLabel="Generate New Map"
     >
       <form
@@ -206,12 +219,29 @@ export function GenerateMapDialog({
         {error ? <p className={styles.error}>{error}</p> : null}
         {pending && planner !== 'llm' ? <p className={styles.status}>Generating…</p> : null}
         <div className={styles.actions}>
+          {planner === 'llm' ? (
+            <label className={styles.reasoning}>
+              <span className={styles.label}>Reasoning</span>
+              <select
+                className={styles.reasoningSelect}
+                aria-label="Reasoning"
+                value={reasoning}
+                onChange={(event) => setReasoning(event.target.value as ReasoningEffort)}
+              >
+                {REASONING.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
           <Button variant="primary" type="submit" disabled={pending}>
             Generate
           </Button>
           {canCancel ? (
             <Button variant="secondary" type="button" onClick={onCancel}>
-              Cancel
+              Close
             </Button>
           ) : null}
         </div>

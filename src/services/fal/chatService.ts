@@ -10,6 +10,11 @@ export interface ChatMessage {
   content: string;
 }
 
+/** Distinct DeepSeek efforts. `medium` and `xhigh` both run as `high`. */
+export const REASONING_EFFORTS = ['off', 'low', 'high', 'max'] as const;
+
+export type ReasoningEffort = (typeof REASONING_EFFORTS)[number];
+
 export interface StreamCompletionOptions {
   messages: ChatMessage[];
   onChunk: (contentDelta: string) => void;
@@ -19,7 +24,7 @@ export interface StreamCompletionOptions {
   onError: (error: Error) => void;
   signal?: AbortSignal;
   model?: string;
-  thinking?: boolean;
+  reasoning?: ReasoningEffort;
   maxTokens?: number;
 }
 
@@ -169,7 +174,7 @@ export async function streamCompletion({
   onError,
   signal,
   model = DEFAULT_CHAT_MODEL_ID,
-  thinking,
+  reasoning,
   maxTokens,
 }: StreamCompletionOptions): Promise<void> {
   try {
@@ -183,11 +188,11 @@ export async function streamCompletion({
     if (maxTokens !== undefined) {
       body.max_tokens = maxTokens;
     }
-    if (thinking === true) {
-      body.reasoning_effort = 'high';
-      body.thinking = { type: 'enabled' };
-    } else if (thinking === false) {
+    if (reasoning === 'off') {
       body.thinking = { type: 'disabled' };
+    } else if (reasoning !== undefined) {
+      body.reasoning_effort = reasoning;
+      body.thinking = { type: 'enabled' };
     }
 
     const response = await falFetch(FAL_CHAT_COMPLETIONS_URL, {

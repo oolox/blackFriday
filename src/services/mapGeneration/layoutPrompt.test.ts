@@ -5,10 +5,13 @@ describe('layout prompts', () => {
   it('lets the model choose the size and sends only the brief', () => {
     const brief = 'Make me a posh mansion with 8 bedrooms, 2 baths and a study.';
     const setup = layoutSetupPrompt('sandbox-1', brief);
-    expect(layoutSystemPrompt).toContain('one json code fence');
-    expect(layoutSystemPrompt).toContain('"areaSquareFeet": 861');
-    expect(layoutSystemPrompt).toContain('"roomCount": 2');
-    expect(layoutSystemPrompt).toContain('You choose the size');
+    expect(layoutSystemPrompt).toContain('one json fence');
+    expect(layoutSystemPrompt).toContain('1. Program.');
+    expect(layoutSystemPrompt).toContain('2. Circulation.');
+    expect(layoutSystemPrompt).toContain('3. Layout.');
+    expect(layoutSystemPrompt).toContain('Omit square footage');
+    expect(layoutSystemPrompt).not.toContain('areaSquareFeet');
+    expect(layoutSystemPrompt).not.toContain('Think through');
     expect(setup).toContain(brief);
     expect(setup).toContain('Seed: sandbox-1');
     expect(setup).not.toContain('areaSquareFeet');

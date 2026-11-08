@@ -42,6 +42,7 @@ export function SandboxSessionProvider({ children }: { children: ReactNode }) {
         tiles,
         seed,
         brief: request.brief,
+        reasoning: request.reasoning,
         signal: controller.signal,
         onTrace,
       });
@@ -54,7 +55,6 @@ export function SandboxSessionProvider({ children }: { children: ReactNode }) {
       setSeedCount((count) => count + 1);
       setParameters(result.map.parameters);
       setMap(result.map);
-      setOpen(false);
       return null;
     }
     const result = generateMap({ parameters: request.parameters, tiles, seed });

@@ -18,7 +18,7 @@ describe('GameView', () => {
     renderGame();
 
     expect(screen.getByRole('dialog', { name: 'Generate New Map' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeInTheDocument();
     expect(screen.queryByRole('application', { name: 'Shop floor' })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Generate' }));

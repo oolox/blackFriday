@@ -135,8 +135,9 @@ export function rasterizeStruct(
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
-      if (roles[cellIndex(width, x, y)] === UNSET) {
-        errors.push(`cell (${x},${y}) is not part of the building`);
+      const index = cellIndex(width, x, y);
+      if (roles[index] === UNSET) {
+        roles[index] = OUTSIDE;
       }
     }
   }

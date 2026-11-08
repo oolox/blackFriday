@@ -261,6 +261,31 @@ describe('acceptLayoutFence', () => {
     expect(result.map.parameters.roomCount).toBe(1);
   });
 
+  it('draws a plan that leaves an empty band inside the box', () => {
+    const result = accept(
+      fence(
+        {
+          width: 8,
+          height: 12,
+          buildingType: 'residential',
+          outside: [],
+          rooms: [
+            { id: 'room-1', role: 'hall', rects: [{ x: 1, y: 1, width: 6, height: 3 }] },
+            { id: 'room-2', role: 'living', rects: [{ x: 1, y: 5, width: 6, height: 3 }] },
+          ],
+        },
+        861,
+      ),
+    );
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    expect(cellAt(8, 12, result.map.cells, 1, 1)).not.toBe(0);
+    expect(cellAt(8, 12, result.map.cells, 1, 9)).toBe(0);
+    expect(cellAt(8, 12, result.map.cells, 5, 10)).toBe(0);
+  });
+
   it('rejects prose, the wrong tool, and a bad fence', () => {
     expect(accept('I would put the hall on the south.').ok).toBe(false);
     expect(

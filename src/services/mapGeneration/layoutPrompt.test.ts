@@ -9,6 +9,7 @@ describe('layout prompts', () => {
     expect(layoutSystemPrompt).toContain('1. Program.');
     expect(layoutSystemPrompt).toContain('2. Circulation.');
     expect(layoutSystemPrompt).toContain('3. Layout.');
+    expect(layoutSystemPrompt).toContain('shell touches the outermost floor');
     expect(layoutSystemPrompt).toContain('Omit square footage');
     expect(layoutSystemPrompt).not.toContain('areaSquareFeet');
     expect(layoutSystemPrompt).not.toContain('Think through');

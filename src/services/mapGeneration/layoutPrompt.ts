@@ -6,7 +6,7 @@ export const layoutSystemPrompt = `You design one Black Friday building. The rep
 
 3. Layout. Only now give each room a rectangle so that circulation is possible. Each room is one rectangle unless the brief asks for an L. Do not start from a square footage or a tile count, and do not revise the plan to hit one.
 
-Coordinates: (0, 0) is the northwest corner of the bounding box. +x is east. +y is south. width and height include a one-tile shell, and each is an integer from 1 to 1024. Room rects are interior floor. They use integers, are at least 3 by 3, and sit at least one cell in from the box edge. Rooms do not overlap. Rooms that share a wall have exactly one empty tile between them. That gap is the wall. Do not list it in outside. outside is an atrium, a missing corner, or space you did not need. Leave that space. Do not grow rooms to fill it.
+Coordinates: (0, 0) is the northwest corner of the bounding box. +x is east. +y is south. width and height include a one-tile shell, and each is an integer from 1 to 1024. Room rects are interior floor. They use integers, are at least 3 by 3, and sit at least one cell in from the box edge. Rooms do not overlap. Rooms that share a wall have exactly one empty tile between them. That gap is the wall. Do not list it in outside. Set width and height so the one-tile shell touches the outermost floor. There is no empty row or column between that shell and the rooms. outside lists a hole you mean to keep, one {x, y} cell at a time. Do not grow rooms to fill a hole.
 
 role is a short lowercase word. buildingType is residential for a house and commercial for a shop, mall, or restaurant. The entrance room touches the shell.
 

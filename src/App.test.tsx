@@ -20,8 +20,9 @@ describe('AppRoutes', () => {
     expect(screen.queryByRole('link', { name: 'Play' })).not.toBeInTheDocument();
     expect(screen.getByRole('tab', { name: 'SANDBOX' })).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByRole('tab', { name: 'GAME' })).toBeDisabled();
-    expect(screen.getByRole('tab', { name: 'ALGO' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: 'LLM' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'LLM' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'ALGO' })).toHaveAttribute('aria-selected', 'false');
+    expect(screen.getByRole('textbox', { name: 'Brief' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'New' })).toBeInTheDocument();
     expect(screen.getByRole('dialog', { name: 'Generate New Map' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
@@ -44,6 +45,7 @@ describe('AppRoutes', () => {
       </MemoryRouter>,
     );
 
+    await user.click(screen.getByRole('tab', { name: 'ALGO' }));
     await user.click(screen.getByRole('button', { name: 'Generate' }));
     expect(screen.getByRole('application', { name: 'Shop floor' })).toBeInTheDocument();
 

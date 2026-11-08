@@ -7,8 +7,12 @@ export const DEFAULT_MAP_PARAMETERS: MapParameters = {
   buildingType: 'residential',
 };
 
+export type Planner = 'algo' | 'llm';
+
 export interface SandboxSessionValue {
   map: GeneratedMap | null;
+  planner: Planner;
+  setPlanner: (planner: Planner) => void;
   requestNew: () => void;
 }
 

@@ -82,6 +82,10 @@ export interface GeneratedMap {
   parameters: MapParameters;
   seed: string;
   generatorId: string;
+  /** The brief `llm-v1` laid out. Absent for the algorithmic generators. */
+  brief?: string;
+  /** The assistant fence `llm-v1` accepted. Replay stamps this and does not call fal. */
+  rawFence?: string;
   /** Interior floor tiles actually placed. */
   interiorTiles: number;
   layout: MapLayout;

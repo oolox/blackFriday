@@ -2,7 +2,9 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-md);
-  min-width: min(100%, 18rem);
+  box-sizing: border-box;
+  width: min(36rem, calc(100vw - 3rem));
+  min-width: 10rem;
 }
 
 .title {
@@ -33,14 +35,80 @@
   color: var(--color-text-primary);
 }
 
-.select:focus {
+.brief {
+  width: 100%;
+  min-height: 6rem;
+  padding: var(--space-sm) var(--space-md);
+  font: inherit;
+  font-size: var(--font-size-md);
+  line-height: 1.4;
+  resize: vertical;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-input);
+  color: var(--color-text-primary);
+}
+
+.brief:focus {
   outline: none;
   border-color: var(--color-border);
+}
+
+.log {
+  height: 10rem;
+  overflow: auto;
+  padding: var(--space-sm) var(--space-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-input);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.logEmpty,
+.kind {
+  margin: 0;
+  color: var(--color-text-secondary);
+}
+
+.kind {
+  margin-bottom: var(--space-xs);
+}
+
+.prose {
+  margin: 0 0 var(--space-sm);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.fence {
+  margin: 0 0 var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+}
+
+.fence summary {
+  cursor: pointer;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+.fence pre {
+  margin: 0;
+  padding: var(--space-sm);
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
 }
 
 .error {
   margin: 0;
   color: var(--color-danger);
+  font-size: var(--font-size-sm);
+}
+
+.status {
+  margin: 0;
+  color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
 }
 

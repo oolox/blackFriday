@@ -4,7 +4,7 @@ Black Friday is a top-down game with generative maps. A map is a collection of t
 
 The playable result is a tile grid. The generator does not start from tiles. It builds a building, splits that building into rooms, cuts openings between rooms, then stamps `type: 'struct'` tiles into the grid. Products, triggers, and the player come later.
 
-Sandbox play does not draw a map until the player accepts one. The first load, **New**, and a change into Sandbox open a fullscreen dialog: square footage, room count, and residential or commercial. **Generate** calls `generateMap` and closes the dialog. **Cancel** is shown only after a map exists, and it returns to that map. The game pane then draws the result. The header's Game mode is present and disabled. Beside that toggle, **ALGO** is selected and **LLM** is present and disabled. Generate uses `program-v1`. LLM stays off. A prompt on that dialog, and a later prompt during play that grows or restyles the building, are phases 20 and 21.
+Sandbox play does not draw a map until the player accepts one. The first load, **New**, and a change into Sandbox open a fullscreen dialog. **ALGO** asks for square footage, room count, and residential or commercial. **LLM** asks for a brief. **Generate** calls `generateMap` on **ALGO** and `generateLlmMap` on **LLM**, and closes the dialog when the plan is accepted. **Cancel** is shown only after a map exists, and it returns to that map. The game pane then draws the result. The header's Game mode is present and disabled. Beside that toggle, **LLM** is selected and calls fal. **ALGO** stays available. The model chooses the square footage and the rooms from that brief.
 
 ## Units and limits
 
@@ -166,12 +166,12 @@ The turn is browser `fetch`, copied from MatchDate `falClient.ts` and `chatServi
 | Key      | `VITE_FAL_KEY` from `import.meta.env`, read by `getFalApiKey`. Missing key throws `Missing VITE_FAL_KEY. Add it to your .env file.` before the request. `.env.example` is the one line from MatchDate. `.env` stays gitignored. |
 | Header   | `Authorization: Key <key>`, `Content-Type` and `Accept` JSON. Fal's header is `Key`, not `Bearer`.                                                                                                                              |
 | URL      | `POST https://fal.run/openrouter/router/openai/v1/chat/completions`                                                                                                                                                             |
-| Body     | `{ model, messages, stream: true, response_format: { type: 'text' }, max_tokens: 4096, reasoning_effort: 'high', thinking: { type: 'enabled' } }`. `model` is `deepseek/deepseek-v4-flash`.                                     |
-| Stream   | SSE lines `data: { choices[0].delta.content }`, ended by `data: [DONE]`. `reasoning_content` is ignored and not shown. Malformed lines are skipped. Abort keeps whatever text arrived and does not apply it.                    |
+| Body     | `{ model, messages, stream: true, response_format: { type: 'text' }, reasoning_effort: 'high', thinking: { type: 'enabled' } }`. `model` is `deepseek/deepseek-v4-flash`. `max_tokens` is omitted, the same as MatchDate, so thinking does not use up the reply. |
+| Stream   | SSE lines `data: { choices[0].delta }`, ended by `data: [DONE]`, the same reader as MatchDate. `content` is the reply the parser accepts. OpenRouter sends thinking on `delta.reasoning` (and `reasoning_details`); `reasoning_content` is read too. That text is shown in the dialog log and is not part of the reply. A body that is one JSON object, with no `data:` lines, is read from `choices[0].message`. Malformed lines are skipped. Abort keeps whatever text arrived and does not apply it. |
 | Messages | One `system` message (the layout system prompt), then one `user` message (the setup prompt). No prior turns and no second system message.                                                                                       |
 | Tool     | A ` ```json ` fence in the assistant text. The request does not send OpenAI `tools`. The parser takes the last fence whose `tool` is `layout`.                                                                                  |
 
-`response_format` stays `text` so the fence survives. DeepSeek's [JSON Output](https://api-docs.deepseek.com/guides/json_mode) mode (`json_object`) guarantees a JSON string and then replaces anything that is not JSON with spaces, which would delete the fence. OpenAI [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs) (`json_schema`) are not the format this fal route documents for DeepSeek. The prompts do the work that mode would have done: the word `json`, a full example, and a schema the parser checks. This turn turns DeepSeek [thinking mode](https://api-docs.deepseek.com/guides/thinking_mode) on, at `reasoning_effort: 'high'`, so the model can decide the rooms from an open brief before it commits to coordinates. The chain comes back as `reasoning_content`, beside `content`. The parser reads `content` and drops the chain. In thinking mode DeepSeek fixes temperature at 1.0, so this body omits `temperature`. `max_tokens: 4096` leaves room for a multi-rectangle plan. A truncated fence is a failed reply.
+`response_format` stays `text` so the fence survives. DeepSeek's [JSON Output](https://api-docs.deepseek.com/guides/json_mode) mode (`json_object`) guarantees a JSON string and then replaces anything that is not JSON with spaces, which would delete the fence. OpenAI [structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs) (`json_schema`) are not the format this fal route documents for DeepSeek. The prompts do the work that mode would have done: the word `json`, a full example, and a schema the parser checks. This turn turns DeepSeek [thinking mode](https://api-docs.deepseek.com/guides/thinking_mode) on, at `reasoning_effort: 'high'`, so the model can decide the rooms from an open brief before it commits to coordinates. The chain comes back as `reasoning` on this fal route, beside `content`. The dialog log shows that chain as it arrives, the same way MatchDate appends each content chunk onto the assistant message. The parser reads `content` only. In thinking mode DeepSeek fixes temperature at 1.0, so this body omits `temperature`. `max_tokens` is omitted too, matching MatchDate, so the thinking tokens are not the whole reply. A truncated fence is a failed reply.
 
 MatchDate's envelope is `{ "tool", "origin", "action", "id", "data" }`. Black Friday uses it. The layout is the document in `data`.
 
@@ -185,7 +185,7 @@ Published floor-plan prompts and the current API guides agree on the split. The 
 - [Text-to-Layout](https://arxiv.org/html/2509.00543) (2025) expands every geometric rule into an explicit field constraint and then validates the JSON in code. Overlaps and a missed connection are rejected by the app.
 - [ChatHouseDiffusion](https://arxiv.org/html/2410.11908) (2024) first pins rooms, types, and links, then draws. The model does that pinning from the brief, in the thinking channel, and the fence is the drawing. `planRoomProgram` stays on the ALGO path.
 
-The setup is a brief plus a tile budget. The brief is the building the player asked for: "Make me a mini-mall with a collection of stores and restaurants," or "Make me a posh mansion with 8 bedrooms, 2 baths and a study." The model decides the rooms that brief needs, then places them. Square footage stays a hard budget the app converts to tiles. The model does not convert square feet. A brief that names counts keeps those counts. A brief that only says what kind of building it is gets the circulation and service rooms that kind needs: a concourse, showrooms, dining rooms, staff rooms, and restrooms for the mall; a hall, a living room, a kitchen, eight bedrooms, two baths, and a study for the mansion.
+The setup is the brief and the seed. The brief is the building the player asked for: "Make me a mini-mall with a collection of stores and restaurants," or "Make me a posh mansion with 8 bedrooms, 2 baths and a study." The model chooses the square footage and the rooms that brief needs, then places them. The system prompt states the limits: the conversion to tiles, the 10% floor slack, the 3 by 3 minimum, the one-tile shell, and the 1024 cap. The player does not send a square footage or a room count. A brief that names counts keeps those counts. A brief that only says what kind of building it is gets the circulation and service rooms that kind needs: a concourse, showrooms, dining rooms, staff rooms, and restrooms for the mall; a hall, a living room, a kitchen, eight bedrooms, two baths, and a study for the mansion.
 
 The prompts are source, the way MatchDate keeps `CHARACTER_SYSTEM_PROMPT` in `characterSystemPrompt.ts`. They are not a preset the player edits. The text below is what those constants should contain.
 
@@ -194,7 +194,7 @@ The prompts are source, the way MatchDate keeps `CHARACTER_SYSTEM_PROMPT` in `ch
 ````text
 You lay out one Black Friday building as json. The reply is one json code fence and no other text.
 
-The fence is exactly this envelope. `id` is the seed from the setup, copied unchanged.
+The fence is exactly this envelope. `id` is the Seed line from the setup, copied unchanged.
 
 ```json
 {
@@ -203,6 +203,8 @@ The fence is exactly this envelope. `id` is the seed from the setup, copied unch
   "action": "create",
   "id": "<seed>",
   "data": {
+    "areaSquareFeet": 861,
+    "roomCount": 2,
     "width": 12,
     "height": 11,
     "buildingType": "residential",
@@ -223,7 +225,7 @@ The fence is exactly this envelope. `id` is the seed from the setup, copied unch
 }
 ```
 
-That example is a 12 by 11 box with 80 floor tiles. Use it for the shape only. The brief decides which rooms exist and how large they are.
+That example is a 12 by 11 box. Its 80 floor tiles are round(861 × 0.092903), and roomCount is 2. Use it for the shape. The brief decides which rooms exist and how large the building is.
 
 Coordinates: (0, 0) is the northwest corner of the bounding box. +x is east. +y is south. `width` and `height` count every cell of that box, including the one-tile shell, and each is from 1 to 1024.
 
@@ -239,40 +241,29 @@ Read the brief and decide the rooms before you place a rectangle. A number in th
 
 The entrance room touches the shell. Public rooms (`living`, `concourse`, `showroom`, `dining`) prefer the shell. Private and service rooms (`bedroom`, `bath`, `study`, `kitchen`, `staff`, `stock`) may sit off the shell. Give the largest share of the floor to the heart of the brief: the living room of a mansion, the showrooms and dining rooms of a mall. Neighbors that the brief puts together share a one-tile wall with an overlap of at least 3 tiles.
 
-The sum of all floor cells must be within `tolerance` of `interiorTiles`. Every room is at least 3 by 3. For one rect, aspect is the longer side divided by the shorter side. A hall or concourse is longer than it is wide. A bath or restroom stays close to square.
+You choose the size. `areaSquareFeet` is the interior floor you are drawing, as a positive number. `roomCount` is how many rooms you placed, and it must equal the number of objects in `rooms`. The player does not send a square footage or a room count.
 
-Think through the room list, the one-tile gaps, the shell inset, the floor sum, and the 1024 cap. The reply itself is the fence only.
+One floor tile is one square meter. interiorTiles = round(areaSquareFeet × 0.092903). The sum of every floor cell must be within round(interiorTiles × 0.1) of interiorTiles. `width` and `height` include the one-tile shell, and each is an integer from 1 to 1024. Every rect is at least 3 by 3. For one rect, aspect is the longer side divided by the shorter side. A hall or concourse is longer than it is wide. A bath or restroom stays close to square.
+
+Think through the room list, the size you chose, the one-tile gaps, the shell inset, the floor sum, and the 1024 cap. The reply itself is the fence only.
 ````
 
 The example's hall is `10×3` (aspect 3.33, inside 1.25–4) and its living room is `10×5` (aspect 2, inside 1.2–3). They share the wall on `y = 6`. Eighty floor tiles is `50 + 30`. It is a shape demo. A live brief supplies its own rooms.
 
-### Proposed setup prompt
+### Setup prompt
 
-The user message is the brief, then one fence that holds the budget. The brief is the building. The fence is the limit, delimited so those numbers stay data ([OpenAI's prompting guide](https://developers.openai.com/api/docs/guides/prompt-engineering) separates instructions from arguments). The fence does not list rooms.
+The user message is the brief and the seed. It does not send a square footage, a room count, or a budget fence. The model chooses both, and the fence it returns reports them.
 
 ````text
-Lay out the building in this brief. Decide which rooms it needs, then place them inside the budget. Reply with one json fence and no other text.
+Lay out the building in this brief. You choose the square footage and the rooms. Reply with one json fence and no other text.
 
 Brief: Make me a posh mansion with 8 bedrooms, 2 baths and a study.
-
-```json
-{
-  "tool": "layout",
-  "origin": "user",
-  "action": "create",
-  "id": "<seed>",
-  "data": {
-    "areaSquareFeet": 8000,
-    "interiorTiles": 743,
-    "tolerance": 74
-  }
-}
-```
+Seed: sandbox-1
 ````
 
-The same budget fence with a different brief asks for a different building: "Make me a mini-mall with a collection of stores and restaurants." The model answers with a concourse, showrooms, dining rooms, staff rooms, and restrooms, and sets `buildingType` to `commercial`. The mansion brief sets `buildingType` to `residential` and keeps the eight bedrooms, two baths, and study, plus a hall, a living room, and a kitchen.
+The same setup with a different brief asks for a different building: "Make me a mini-mall with a collection of stores and restaurants." The model answers with a concourse, showrooms, dining rooms, staff rooms, and restrooms, and sets `buildingType` to `commercial`. The mansion brief sets `buildingType` to `residential` and keeps the eight bedrooms, two baths, and study, plus a hall, a living room, and a kitchen.
 
-`interiorTiles` is `round(areaSquareFeet × 0.092903)`. `tolerance` is `round(interiorTiles × 0.1)`. For 8,000 ft² that is 743 tiles and a tolerance of 74. For the dialog's default 2,000 ft² it is 186 and 19. Until the dialog has a prompt field, the app writes the brief from the controls: "A residential building of 4 rooms, about 2000 square feet." Phase 20 replaces that sentence with the player's text. Footage stays the budget either way.
+`areaSquareFeet` and `roomCount` come back on the agent fence. `interiorTiles` is `round(areaSquareFeet × 0.092903)`. The floor sum must be within `round(interiorTiles × 0.1)` of that count. The LLM dialog is a brief. An empty brief is an error. ALGO still asks for square footage, room count, and residential or commercial.
 
 ### Accepting the reply
 
@@ -285,6 +276,8 @@ The parser reads this shape. The system-prompt example is the one that also meet
   "action": "create",
   "id": "<same seed>",
   "data": {
+    "areaSquareFeet": 861,
+    "roomCount": 1,
     "width": 20,
     "height": 16,
     "buildingType": "residential",
@@ -300,7 +293,7 @@ The parser reads this shape. The system-prompt example is the one that also meet
 }
 ```
 
-`outside` lists the atrium and the missing corner of an L. Each room is one or more edge-connected rectangles. `role` is the brief's word for that room. `buildingType` on the fence selects doors or passages. The model does not emit tile ids, door cells, or wall cells. The app derives the shell and the shared walls from the rooms and `outside`, runs `planOpenings` for that building type, then `rasterizeStruct`. The service checks geometry. It does not parse the brief to count bedrooms. The prompt is what keeps a counted room in the plan. A reply that is prose only, empty or only spaces, the wrong tool, or invalid JSON is an error. `layoutIssues`, the area tolerance, connectivity, and the 1024 cap still run. A failed check does not draw, and it does not fall back to `adjacency-v1`. The dialog can send the same two messages again. That retry is another sample, not a repair.
+`outside` lists the atrium and the missing corner of an L. Each room is one or more edge-connected rectangles. `role` is the brief's word for that room. `areaSquareFeet` is the size the model chose, and `roomCount` must equal `rooms.length`. `buildingType` on the fence selects doors or passages. The model does not emit tile ids, door cells, or wall cells. The app derives the shell and the shared walls from the rooms and `outside`, runs `planOpenings` for that building type, then `rasterizeStruct`. The service checks geometry against the footage on the fence. It does not parse the brief to count bedrooms. The prompt is what keeps a counted room in the plan. A reply that is prose only, empty or only spaces, the wrong tool, or invalid JSON is an error. `layoutIssues`, the area tolerance, a `roomCount` that does not match the room list, connectivity, and the 1024 cap still run. A failed check does not draw, and it does not fall back to `adjacency-v1`. The dialog can send the same two messages again. That retry is another sample, not a repair.
 
 The seed in the setup is the fence `id` and the value stored on the map. It does not seed the sampler. Thinking mode runs at temperature 1.0, so the same brief can still return a different layout. `GeneratedMap` keeps the brief, the raw fence, and `generatorId: "llm-v1"` so a reload stamps that fence again and does not call fal. `bsp-v1` and `adjacency-v1` stay synchronous and do not read the key. Tests of the parser use fixture assistant text.
 
@@ -314,22 +307,22 @@ Each phase keeps the public `generate` method stable. Later phases replace a sta
 2. **Footprint and rooms.** `generateBspLayout` in `src/services/mapGeneration/` is a seeded BSP. It returns rooms and one shared wall per cut. No tile ids. Floor area stays within `max(roomCount, 10%)` of the converted square footage. Each room is at least 3×3. The bounding box stays inside 1024×1024.
 3. **Openings.** `planOpenings` cuts one opening per shared wall and adds one exterior entrance. Residential openings are doors. Commercial openings are passages, and the commercial entrance is on a long side. `roomsConnected` checks that every room is reachable. No tile ids yet.
 4. **Struct rasterizer.** `generateMap` stamps the layout into a palette and a `Uint16Array`. Rooms and passages use the first `floor` struct, or `stamp.floor` when the request names one. Solid walls use `wall`. Door openings use `door`. Surfaces are not placed. `gridIssues` checks the palette. This is the first phase that returns a playable tile grid.
-5. **Building-type graphs.** `generateAdjacencyLayout` (`adjacency-v1`) is the default planner. For two or more rooms it builds the star above: residential rooms open off a hall, and commercial support rooms open off a sales floor. `planOpenings` prefers that south room for the entrance. `bsp-v1` stays available when the request sets `generatorId`. `generateMap` request and result are unchanged.
+5. **Building-type graphs.** `generateAdjacencyLayout` (`adjacency-v1`) stays registered. For two or more rooms it builds the star above: residential rooms open off a hall, and commercial support rooms open off a sales floor. `planOpenings` prefers that south room for the entrance. `bsp-v1` stays available when the request sets `generatorId`. `program-v1` is the default.
 6. **View.** The game pane mounts a Pixi canvas after Generate. The camera starts centered on that building. Drag pans a building larger than the pane and clamps to the box. The Rooms checkbox draws each room's type and id. The dialog defaults to 2,000 ft², 4 rooms, and residential. Player movement that reads `actAs.speed`, and the dead-zone follow that replaces drag, are still ahead. The generation service does not know about the camera.
 7. **Dressing.** Surfaces, products, and triggers on floor cells. Out of scope until the algorithmic room shapes below are in the grid.
-8. **Program.** `planRoomProgram` names the roles, target areas, aspect bands, and required neighbors from the tables above. A 4-room house is a hall, a living room, one bedroom, and a 3×3 bath. A 4-room shop is a showroom of at least half the floor, a 3×3 restroom, a larger stock room, and a smaller staff room. Areas sum to the converted floor count. A budget that cannot pay for those rooms is an error. `program-v1` is the caller. The header's LLM tab stays disabled.
+8. **Program.** `planRoomProgram` names the roles, target areas, aspect bands, and required neighbors from the tables above. A 4-room house is a hall, a living room, one bedroom, and a 3×3 bath. A 4-room shop is a showroom of at least half the floor, a 3×3 restroom, a larger stock room, and a smaller staff room. Areas sum to the converted floor count. A budget that cannot pay for those rooms is an error. `program-v1` is the caller.
 9. **Outline.** `generateProgramLayout` (`program-v1`) picks rectangle, L, atrium, or a combination. Empty cells inside the bounding box are `layout.outside`: the 3×3 atrium, and the missing corner of an L. The floor count stays inside the area tolerance. `bsp-v1` and `adjacency-v1` stay registered.
 10. **Pack.** The entrance room sits on the shell beside the largest other room. The remaining rooms stack in a column, or under the entrance room when the outline is an L. Required neighbors share a one-tile wall. The full-width front room is gone. A 4-room house still puts every room on the shell, because a rectangle buried on all four sides needs more neighbors than that plan has.
 11. **Orthogonal rooms.** An atrium is cut out of the largest room, and that room's floor is stored as `parts` around the hole. `layoutIssues`, shared walls, `planOpenings`, and `rasterizeStruct` follow every rectangle. The rasterizer paints a wall on any empty cell that touches floor, including a diagonal touch, so the junction where three rooms meet and the inner corner of an L stay bricked. The ring around a court is that same wall. A court cell sits one wall away from the floor, so it stays empty. The Rooms overlay labels the room once, on its largest rectangle. A room that wraps another room is still ahead.
 12. **ALGO default.** `program-v1` is what **ALGO** runs. A spread of seeds covers more than one outline. `adjacency-v1` and `bsp-v1` stay available by id. An interior room and a room shaped as an L on its own are still ahead.
-13. **Env.** Add `.env.example` as MatchDate's one line: `VITE_FAL_KEY=your-fal-api-key-here`. `.env` and `.env.local` are already gitignored. The developer copies the example to `.env` and pastes a fal key. Nothing calls fal in this phase.
-14. **Default chat model.** Add `src/services/fal/models/chat/` with MatchDate's Flash entry only. `DEEPSEEK_V4_FLASH_ID` and `DEFAULT_CHAT_MODEL_ID` are `deepseek/deepseek-v4-flash`. `getChatModel()` with no argument returns that config. Pro, Aion, and Llama are not registered, and there is no picker. A test asserts the default id.
-15. **Fal chat client.** Copy `getFalApiKey`, `getFalHeaders`, `formatFalHttpError`, and `falFetch` from MatchDate `src/services/fal/falClient.ts`, and `streamCompletion` from `src/services/fal/chatService.ts`. Same URL, `Authorization: Key`, and SSE parser. The layout call passes `model: DEFAULT_CHAT_MODEL_ID`, `thinking: true` (`reasoning_effort: 'high'`), and `max_tokens: 4096`. The reader keeps `delta.content` and drops `reasoning_content`. A missing key throws `Missing VITE_FAL_KEY. Add it to your .env file.` Abort drops the partial text. No `@fal-ai/client`, no Pixi import, and no raster import. Tests stub the env and `fetch`. The LLM tab stays disabled.
-16. **System and setup prompts.** `layoutSystemPrompt` is the proposed system prompt above. `layoutSetupPrompt(request, brief)` is the brief plus the tile budget. With no prompt field yet, the brief is one sentence from the controls, such as "A residential building of 4 rooms, about 2000 square feet." Tests assert the setup contains that sentence and `interiorTiles`. They do not require a precomputed room list. No live call.
-17. **Accept the fence.** Parse the last closed `layout` fence into rooms, `outside`, `buildingType`, and a bounding box. `role` is whatever short word the model wrote. Derive shared walls. Run `planOpenings` for the fence's building type and `rasterizeStruct`. Reject a bad fence, an empty reply, a failed `layoutIssues`, a missed area, a disconnected plan, or a box past 1024. Fixture tests cover a rectangle, an L-room, an interior room, an atrium, a mansion room list, and a mini-mall room list. No live call.
-18. **LLM Generate.** With the LLM tab selected, the dialog calls `llm-v1` and shows a generating state. The request is the system prompt plus the setup prompt. No transcript and no chat header. The thinking chain stays hidden. Success closes the dialog and draws the map. Failure leaves the dialog open with the error and keeps the previous map. Cancel aborts. ALGO keeps `program-v1`.
-19. **Replay.** Store the brief, the raw fence, and `generatorId: "llm-v1"` on the map. Opening that map stamps the stored fence and does not call fal. Dressing (phase 7) follows a trustworthy grid from either planner.
-20. **Brief in the dialog.** The Generate dialog gains a prompt field. The player can type "Make me a mini-mall with a collection of stores and restaurants" or "Make me a posh mansion with 8 bedrooms, 2 baths and a study." Footage stays the area budget. An empty prompt keeps the sentence from the controls. The typed brief is what `layoutSetupPrompt` sends, and it is what phase 19 stores.
+13. **Env.** `.env.example` is `VITE_FAL_KEY=your-fal-api-key-here`. `.env` and `.env.local` stay gitignored. The developer copies the example to `.env` and pastes a fal key.
+14. **Default chat model.** `src/services/fal/models/chat/` registers Flash only. `DEEPSEEK_V4_FLASH_ID` and `DEFAULT_CHAT_MODEL_ID` are `deepseek/deepseek-v4-flash`. `getChatModel()` with no argument returns that config. Pro, Aion, and Llama are not registered, and there is no picker.
+15. **Fal chat client.** `getFalApiKey`, `getFalHeaders`, `formatFalHttpError`, and `falFetch` match MatchDate. `streamCompletion` posts to the same chat-completions URL with `Authorization: Key` and reads SSE the same way: `delta.content` for the reply, and `delta.reasoning` for the thinking MatchDate's reader skips. The layout call passes `model: DEFAULT_CHAT_MODEL_ID` and `thinking: true` (`reasoning_effort: 'high'`). It does not set `max_tokens`. The fence is built from `content` only. A missing key throws `Missing VITE_FAL_KEY. Add it to your .env file.` Abort drops the partial text. No `@fal-ai/client`. Tests stub the env and `fetch`.
+16. **System and setup prompts.** `layoutSystemPrompt` states the limits and lets the model choose `areaSquareFeet` and `roomCount`. `layoutSetupPrompt(seed, brief)` is the brief and the seed. It does not send a budget. Tests assert the brief, the seed, and that the setup has no `interiorTiles`. They do not require a precomputed room list.
+17. **Accept the fence.** `acceptLayoutFence` parses the last closed `layout` fence into rooms, `outside`, `buildingType`, `areaSquareFeet`, `roomCount`, and a bounding box. `role` is whatever short word the model wrote. `roomCount` must equal the room list. The floor sum is checked against the footage on the fence. The app derives shared walls, runs `planOpenings` for the fence's building type, and `rasterizeStruct`. It rejects a bad fence, an empty reply, a failed `layoutIssues`, a missed area, a disconnected plan, a rect under 3×3, a floor cell on the shell, or a box past 1024. Fixture tests cover a rectangle, an L-room, an interior room, an atrium, a mansion room list, and a mini-mall room list. No live call.
+18. **LLM Generate.** With the LLM tab selected, the dialog is a brief plus a 10rem log. Generate calls `generateLlmMap`. The log shows the thinking channel when the model sends one, and the reply otherwise. A fenced block is a collapsible section. The request is the system prompt plus the setup prompt. No transcript and no chat header. Success closes the dialog and draws the map. Failure leaves the dialog open with the error and keeps the previous map. Cancel aborts. ALGO keeps `program-v1` and its square footage, rooms, and type fields.
+19. **Replay.** The map stores `brief`, `rawFence`, and `generatorId: "llm-v1"`. `acceptLayoutFence` stamps that fence again and does not call fal. Dressing (phase 7) follows a trustworthy grid from either planner.
+20. **Brief only.** The LLM dialog is a brief. The player types "Make me a mini-mall with a collection of stores and restaurants" or "Make me a posh mansion with 8 bedrooms, 2 baths and a study." That tab has no square-footage field and no room field. An empty brief is an error. ALGO still asks for square footage, rooms, and type. The typed brief is what `layoutSetupPrompt` sends, and it is what phase 19 stores.
 21. **Play prompt.** During play, a later prompt can grow or restyle the building already on screen: a larger footage budget, a new brief, and the current layout fence go out as the setup. The same system prompt applies. Success replaces the grid. Failure leaves the current map. This phase waits until a map can be revised in place. LLM Generate does not include it.
 
 ## Generation service
@@ -340,7 +333,7 @@ Planned home: `src/services/mapGeneration/`. Planned types: `src/types/map.ts`. 
 generateMap(request: GenerateMapRequest): GenerateMapResult
 ```
 
-`GenerateMapRequest` carries `MapParameters`, the `seed`, the struct catalog (or the three chosen tile ids), and an optional `generatorId`. The synchronous default is `program-v1`, which is what the header's **ALGO** tab runs. `adjacency-v1` and `bsp-v1` stay registered. `llm-v1` is the later path, phases 13–21, and the header's LLM tab stays disabled until that path exists. An unknown id is an error. Adding a generator means registering a new id. Callers that omit the id keep the synchronous default.
+`GenerateMapRequest` carries `MapParameters`, the `seed`, the struct catalog (or the three chosen tile ids), and an optional `generatorId`. The synchronous default is `program-v1`, which is what the header's **ALGO** tab runs. `adjacency-v1` and `bsp-v1` stay registered. `llm-v1` is asynchronous: the **LLM** tab calls `generateLlmMap` with the typed brief, streams one fal turn, and then `acceptLayoutFence`. Phase 21 is still ahead. An unknown id on `generateMap` is an error. Adding a generator means registering a new id. Callers that omit the id keep the synchronous default.
 
 `GenerateMapResult` is either `{ ok: true, map: GeneratedMap }` or `{ ok: false, errors: string[] }`. Constraint failures and a catalog with no floor, wall, or required door are both results. An unknown `generatorId` is an error. Omitting it uses `program-v1`.
 
@@ -360,7 +353,7 @@ Invariants the service checks before returning `ok: true`:
 
 - `1 <= width <= 1024` and `1 <= height <= 1024`.
 - Interior floor cells, excluding walls, are within a small tolerance of `round(areaSquareFeet × 0.092903)`. BSP cannot always hit the count exactly after integer splits. Record the achieved area on the map.
-- For `program-v1`, `adjacency-v1`, and `bsp-v1`, `rooms.length === roomCount`. For `llm-v1`, the fence's room list is the count. Interiors are disjoint, and each interior meets the minimum.
+- For `program-v1`, `adjacency-v1`, and `bsp-v1`, `rooms.length === roomCount` from the dialog. For `llm-v1`, `roomCount` and `areaSquareFeet` come from the fence, and `roomCount` must equal `rooms.length`. Interiors are disjoint, and each interior meets the minimum.
 - Shared walls are one tile thick.
 - Openings lie on a wall span they fully cover. Door openings are one tile. Passage openings are at least one tile.
 - The room graph is connected.
@@ -448,6 +441,8 @@ interface GeneratedMap {
   generatorId: string;
   /** The brief `llm-v1` laid out. Absent for the algorithmic generators. */
   brief?: string;
+  /** The assistant fence `llm-v1` accepted. Replay stamps this and does not call fal. */
+  rawFence?: string;
   /** Interior floor tiles actually placed. */
   interiorTiles: number;
   layout: MapLayout;

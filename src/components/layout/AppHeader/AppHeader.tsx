@@ -9,12 +9,10 @@ interface AppHeaderProps {
 }
 
 type PlayMode = 'sandbox' | 'game';
-type Planner = 'algo' | 'llm';
 
 export function AppHeader({ title }: AppHeaderProps) {
   const [mode, setMode] = useState<PlayMode>('sandbox');
-  const [planner, setPlanner] = useState<Planner>('algo');
-  const { requestNew } = useSandboxSession();
+  const { requestNew, planner, setPlanner } = useSandboxSession();
 
   return (
     <header className={styles.header}>
@@ -40,12 +38,12 @@ export function AppHeader({ title }: AppHeaderProps) {
           idPrefix="planner"
           items={[
             { id: 'algo', label: 'ALGO' },
-            { id: 'llm', label: 'LLM', disabled: true },
+            { id: 'llm', label: 'LLM' },
           ]}
           value={planner}
           onChange={(id) => {
-            if (id === 'algo') {
-              setPlanner('algo');
+            if (id === 'algo' || id === 'llm') {
+              setPlanner(id);
             }
           }}
         />

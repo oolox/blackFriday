@@ -14,17 +14,14 @@ describe('tiles', () => {
 
   it('gives every tile a unique id and a sprite that exists', () => {
     const ids = tiles.map((tile) => tile.id);
+    const names = tiles.map((tile) => tile.name);
     expect(new Set(ids).size).toBe(ids.length);
+    expect(new Set(names).size).toBe(names.length);
 
     for (const tile of tiles) {
       expect(tile.id).toMatch(UUID);
       expect(tile.file.startsWith('assets/sprites/')).toBe(true);
       expect(existsSync(resolve('src', tile.file))).toBe(true);
-      if (tile.type === 'product') {
-        expect(tile.actAs).toBeUndefined();
-        continue;
-      }
-
       const actAs = tile.actAs;
       expect(actAs).toBeDefined();
       if (!actAs) continue;
@@ -36,6 +33,9 @@ describe('tiles', () => {
           break;
         case 'floor':
         case 'door':
+          expect(actAs.speed).toBeGreaterThan(0);
+          expect(actAs.speed).toBeLessThanOrEqual(1);
+          break;
         case 'slow':
           expect(actAs.speed).toBeGreaterThan(0);
           break;
@@ -46,6 +46,9 @@ describe('tiles', () => {
         case 'sale':
           expect(actAs.cost).toBeGreaterThan(0);
           expect(actAs.duration).toBeGreaterThan(0);
+          break;
+        case 'purchase':
+          expect(actAs.cost).toBeGreaterThan(0);
           break;
         case 'slide':
         case 'register':

@@ -1,10 +1,10 @@
 /** Datasource kinds folded into the tile catalog. */
 export type TileType = 'struct' | 'product' | 'trigger';
 
-/** How a placed tile behaves. Products in the legacy catalogs have no actAs. */
+/** How a placed tile behaves. */
 export type TileAction = TileActAs['action'];
 
-/** Walk speed on a map tile. 0 is impassable, as with a wall. */
+/** Walk speed on a map tile. 0 is impassable, as with a wall. 1 is full speed. */
 export interface TileMoveActAs {
   action: 'floor' | 'wall' | 'door' | 'shelf';
   speed: number;
@@ -22,6 +22,12 @@ export interface TileSaleActAs {
   action: 'sale';
   cost: number;
   duration: number;
+}
+
+/** Price of a product the player can buy. */
+export interface TilePurchaseActAs {
+  action: 'purchase';
+  cost: number;
 }
 
 export interface TileSlideActAs {
@@ -42,6 +48,7 @@ export type TileActAs =
   | TileMoveActAs
   | TileCharacterSpeedActAs
   | TileSaleActAs
+  | TilePurchaseActAs
   | TileSlideActAs
   | TileRegisterActAs
   | TileSlowActAs;

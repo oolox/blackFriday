@@ -1,0 +1,78 @@
+.tile {
+  display: flex;
+  align-items: stretch;
+  gap: var(--space-sm);
+  min-width: 0;
+  margin-right: 0.5rem;
+  overflow: hidden;
+}
+
+.thumb {
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-self: center;
+  object-fit: contain;
+  background: var(--color-bg-panel);
+  border-radius: var(--radius-sm);
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1rem;
+  flex: 0 0 6rem;
+  width: 6rem;
+  min-width: 0;
+}
+
+.act {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-self: center;
+  gap: var(--space-sm);
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+}
+
+.name,
+.action {
+  min-height: 1.2em;
+  line-height: 1.2;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.type,
+.params {
+  min-height: 1.1em;
+  line-height: 1.2;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.type {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.action,
+.params {
+  min-width: 0;
+}
+
+.params {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 0 var(--space-sm);
+}

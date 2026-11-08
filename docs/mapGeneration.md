@@ -306,6 +306,45 @@ Stay on Flash for this pass. The same fal route can call any OpenRouter slug. Fa
 
 The next change is the prompt, so the fence is short. A model trial is useful after that. This section does not change the code.
 
+## Defining a layout
+
+Both generators are the wrong shape of the same job. **ALGO** (`program-v1`) packs a fixed room list into one of two skeletons, so the buildings repeat and the rooms come out as long strips. **LLM** is asked to invent the rectangles itself, so the reply becomes a coordinate proof and often never finishes. The published split is older than either path.
+
+A layout is three documents, written in order:
+
+1. **Program.** The bubble diagram. Each room has a role and a size band. Each edge says two rooms must share a wall. One room takes the entrance. There are no coordinates. Architects draw this before a plan. Merrell, Schkufza, and Koltun, [_Computer-Generated Residential Building Layouts_](https://paulmerrell.org/floorplan-final.pdf) (SIGGRAPH Asia 2010), sample that diagram from a high-level request (bedroom count, baths, footage) and only then search for a floor plan.
+2. **Plan.** Rectangles, and any holes, that realize the diagram. Shared walls are the edges. This is the `MapLayout` the stamp already accepts.
+3. **Grid.** `rasterizeStruct`. This step stays dumb.
+
+`planRoomProgram` is a thin version of step 1: a fixed spend order, target areas, and a few required neighbors. It does not emit a graph the placer is free to realize in more than one way. `generateProgramLayout` then skips a general step 2. `columns` puts the entrance room and the largest other room side by side, both the full height of the stack, and piles every remaining room in one column of one width. `footPlan` is the same pair on top and the leftovers stacked under the entrance room, each as wide as that room. The seed picks a rectangle, an L, an atrium, or both, then a rotation. A 4-room house is always a living room, a hall, one bedroom, and a bath, in one of those two packings. That is the repetition. The strips, the equal stack, and a 3×3 court punched into the largest room are the wonky part.
+
+The LLM prompt asks the model to do step 2 in prose. The Speed section is the log of that. A chat model is a reasonable step 1. It is a bad step 2.
+
+### Ways to build the plan
+
+These are the methods that take a program and return rooms. The ones that do not belong on a building are listed so they stay out.
+
+| Method | What it is given | What it returns | Fit |
+| --- | --- | --- | --- |
+| Rectangular dual ([Bhasker and Sahni](https://www.cise.ufl.edu/~sahni/papers/findjr.pdf); [GPLAN](https://arxiv.org/abs/2008.01803); [G2PLAN](https://onlinelibrary.wiley.com/doi/10.1111/cgf.14451)) | A planar adjacency graph, then area and aspect bands | Every room a rectangle, the outer boundary a rectangle, required neighbors sharing an edge. G2PLAN enumerates topologically distinct plans and dimensions them in milliseconds | The placer to build. Rooms stay rectangles, which the tile grid wants. An L-room is a later merge of two rectangles that share a room id. Not every graph has a rectangular dual; a non-triangulated graph needs the orthogonal fallback in [Upasani, Shekhawat, and Kaur](https://doi.org/10.52842/conf.caadria.2020.1.315) (CAADRIA 2020) |
+| Stochastic search (Merrell, Schkufza, and Koltun, 2010) | The same bubble diagram, plus area and aspect | Several different plans of one program, by sliding rectangles | A second sampler once a dual exists. Slower than G2PLAN, and the source of variety when the graph itself is fixed |
+| Graph grammar ([Dormans](https://graphics.tudelft.nl/~rafa/myPapers/bidarra.TCIAIG.2014.pdf); Adams, cited there) | A handful of rewrite rules and a size or difficulty | A different room graph per seed. Geometry is a later step | How **ALGO** should vary. The grammar grows the bubble diagram. It does not place tiles. Dormans grows a mission first and a space second; for a shop or a house the mission is the program |
+| Shape grammar (Stiny; the Palladian and prairie grammars cited by [Wang, Zhang, and Zhang](https://yangzzzy.github.io/PDF/floor18.pdf)) | A style, written as rewrite rules on shapes | Plans in that style | A later skin for one building type. Hard to aim at "8 bedrooms and a study" |
+| BSP with corridors ([RogueBasin](https://roguebasin.com/index.php/Basic_BSP_Dungeon_generation), the PCG book [chapter on dungeons](https://www.pcgbook.com/chapter03.pdf)) | A rectangle and a room count | Rooms in the leaves, then halls between sisters | A dungeon. The halls spend floor the brief did not ask for. `bsp-v1` already keeps the useful part, the cuts, and skips the corridors |
+| Agent, digger, cellular automata ([van der Linden, Lopes, and Bidarra](https://graphics.tudelft.nl/~rafa/myPapers/bidarra.TCIAIG.2014.pdf)) | A fill ratio or a walk length | Caves and winding tunnels | No rooms and no doors. Leave them out |
+| Wave Function Collapse ([da Silveira, Fernandes, and Clua](https://www.sbgames.org/proceedings2020/ComputacaoShort/207911.pdf), SBGames 2020) | A small tile sample | A larger grid that is locally like the sample | Dressing, after the plan exists. It cannot hit a room count or a footage |
+| Learned plan from a bubble diagram ([Graph2Plan](https://doi.org/10.1145/3386569.3392391), [House-GAN++](https://arxiv.org/abs/2103.02594)) | A dataset of real plans | Non-rectangular rooms | Shows what a bubble diagram can become. Training one is out of scope |
+
+### Refactors, not built yet
+
+One placer should serve both tabs. The tab only changes who writes the program.
+
+**ALGO.** Replace `columns` and `footPlan` with a graph and a dual. The grammar, seeded, grows a hall or a sales floor and hangs the other rooms off it, with the size bands `planRoomProgram` already has. A rectangular dual turns that graph into rectangles. `planOpenings` and `rasterizeStruct` stay. Seeds then differ in which rooms touch, not only in which way a two-column stack is turned. An atrium stays a hole cut from the outline after the dual, not a court punched into whichever room is largest.
+
+**LLM.** The fence stops at the program: room roles, and the pairs that share a wall. No `x`, `y`, `width`, or `height`. Reasoning stays Off. The same dual stamps the plan. A mansion and a mini-mall differ because the graph differs, which the fixed spend table cannot say. ChatHouseDiffusion, Co-Layout, and LayoutGPT, cited in Speed, are this split. The model names the rooms. The app draws them.
+
+Do not train a layout network, do not move the building onto WFC or a cave carve, and do not keep asking the model for tile coordinates. This section does not change the code.
+
 ## Phased plan
 
 Each phase keeps the public `generate` method stable. Later phases replace a stage, not the map.

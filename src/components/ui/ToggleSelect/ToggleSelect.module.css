@@ -1,0 +1,65 @@
+.toggleSelect {
+  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  color: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.toggleSelect:hover {
+  border-color: color-mix(in srgb, var(--color-text-primary) 75%, transparent);
+  color: color-mix(in srgb, var(--color-text-primary) 75%, transparent);
+}
+
+.toggleSelect > button {
+  color: inherit;
+}
+
+/* Collapsed: match IconButton md (generate / regenerate). */
+.toggleSelect:not(:has([role='group'])) {
+  width: 2rem;
+  height: 2rem;
+  padding: 0.25rem;
+  gap: 0;
+  border-radius: 50%;
+  font-size: inherit;
+}
+
+.toggleSelect:not(:has([role='group'])) > button {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+}
+
+.toggleSelect:not(:has([role='group'])) > button:hover,
+.toggleSelect:not(:has([role='group'])) > button:focus-visible {
+  color: inherit;
+}
+
+.toggleSelect:not(:has([role='group'])) > button span,
+.toggleSelect:not(:has([role='group'])) > button svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Expanded: same height as generate / save round buttons. */
+.toggleSelect:has([role='group']) {
+  height: 2rem;
+  gap: 0;
+  padding: 0 var(--space-sm) 0 0.25rem;
+  border-radius: 9999px;
+}
+
+/* Icon: 0.25rem to outline (left and right). */
+.toggleSelect:has([role='group']) > button {
+  padding-left: 0;
+  padding-right: 0.25rem;
+}
+
+/* Toggle glyph matches generate icon size (2rem − 0.25rem padding). */
+.toggleSelect:has([role='group']) > button span,
+.toggleSelect:has([role='group']) > button svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}

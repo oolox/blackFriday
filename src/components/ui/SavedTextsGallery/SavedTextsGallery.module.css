@@ -1,0 +1,27 @@
+.cardInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-xs);
+  cursor: zoom-in;
+  color: var(--color-text-muted);
+  overflow: hidden;
+}
+
+.cardLabel {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  text-align: center;
+  word-break: break-word;
+  color: var(--color-text-secondary);
+}

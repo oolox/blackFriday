@@ -1,0 +1,64 @@
+.logo {
+  display: block;
+  flex-shrink: 0;
+  color: var(--color-logo);
+  overflow: visible;
+}
+
+.wordmark {
+  fill: none;
+}
+
+.letter {
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
+}
+
+.intro .letter,
+.hoverIn .letter {
+  animation: drawLetterIn 2s ease-in-out both;
+}
+
+.idle .letter {
+  stroke-dashoffset: 0;
+}
+
+.hoverOut .letter {
+  animation: drawLetterOut 2s ease-in-out both;
+}
+
+@keyframes drawLetterIn {
+  from {
+    stroke-dashoffset: 100;
+  }
+
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes drawLetterOut {
+  from {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: 100;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .letter,
+  .intro .letter,
+  .idle .letter,
+  .hoverOut .letter,
+  .hoverIn .letter {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}

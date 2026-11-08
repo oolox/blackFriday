@@ -1,0 +1,12 @@
+/* Fixed width for model closed pills: room for 3 uppercase chars + padding + border. */
+.closed {
+  box-sizing: border-box;
+  width: calc(4ch + 1rem + 2px);
+  min-width: calc(4ch + 1rem + 2px);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  field-sizing: fixed;
+  text-align: center;
+  justify-content: center;
+  white-space: nowrap;
+}

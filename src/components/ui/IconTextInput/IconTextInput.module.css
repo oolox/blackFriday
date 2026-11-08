@@ -1,0 +1,64 @@
+.wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  box-sizing: border-box;
+  min-width: 0;
+  width: 100%;
+  padding: 0.2rem 0.2rem 0.2rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.2;
+  transition:
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.wrap:hover:has(.input:not(:disabled)),
+.wrap:has(.input:focus-visible) {
+  color: var(--color-text-secondary);
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  color: inherit;
+}
+
+.icon svg {
+  width: 1em;
+  height: 1em;
+}
+
+.input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  padding: 0;
+  margin: 0;
+  outline: none;
+}
+
+.input::placeholder {
+  color: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+}
+
+.wrap:has(.input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+

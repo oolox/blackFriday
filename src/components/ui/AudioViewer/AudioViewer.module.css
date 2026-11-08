@@ -1,0 +1,86 @@
+.panel {
+  box-sizing: border-box;
+  width: min(480px, 100%);
+  padding: 1.5rem 2rem;
+  background: var(--color-bg-panel, #1a1a1a);
+  border-radius: var(--radius-md);
+  /* Overlay wrap uses line-height: 0 for media; restore for text + controls. */
+  line-height: normal;
+  cursor: default;
+}
+
+.name {
+  margin: 0 0 0.35rem;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-md);
+  word-break: break-word;
+}
+
+.meta {
+  margin: 0 0 1rem;
+  color: var(--color-text-secondary, #ccc);
+  font-size: var(--font-size-sm);
+}
+
+.audio {
+  display: none;
+}
+
+.controls {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.controlButton {
+  appearance: none;
+  box-sizing: border-box;
+  width: 4rem;
+  min-width: 4rem;
+  margin: 0;
+  padding: 0.35rem 0;
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 28%, transparent);
+  border-radius: var(--radius-md, 0.5rem);
+  background: transparent;
+  color: var(--color-text-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  white-space: nowrap;
+  text-align: center;
+  cursor: pointer;
+}
+
+.controlButton:hover,
+.controlButton:focus-visible {
+  border-color: color-mix(in srgb, var(--color-text-primary) 55%, transparent);
+}
+
+.controlButton[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--color-text-primary) 12%, transparent);
+}
+
+.progress {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  accent-color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.time {
+  color: var(--color-text-secondary, #ccc);
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.loading,
+.unsupported {
+  margin: 0;
+  color: var(--color-text-secondary, #ccc);
+  font-size: 0.95rem;
+}

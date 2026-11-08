@@ -1,0 +1,135 @@
+.root {
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: 100%;
+  max-height: 0;
+  padding: 0;
+  border-bottom: 1px solid transparent;
+  background: var(--color-bg-input);
+  /* Clip for open/close animation so parent panes don't flash a scrollbar. */
+  overflow: hidden;
+  opacity: 0;
+  transition:
+    max-height 0.24s ease,
+    padding 0.24s ease,
+    border-bottom-color 0.24s ease,
+    opacity 0.2s ease;
+}
+
+.root.expanded {
+  padding: var(--space-sm) 0;
+  border-bottom-color: var(--color-border);
+  opacity: 1;
+}
+
+.root.open {
+  outline: 1px dashed color-mix(in srgb, var(--color-text-muted) 55%, transparent);
+  outline-offset: -1px;
+}
+
+.track {
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+}
+
+/* Scroll only when expanded and not mid-drag; `auto` hides the bar when content fits. */
+.root.expanded:not(.open) .track {
+  overflow-x: auto;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+  padding: 0 var(--space-sm);
+  list-style: none;
+  box-sizing: border-box;
+}
+
+.item {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.thumbImage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: zoom-in;
+}
+
+.audioThumb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 0.25rem;
+  color: var(--color-text-muted);
+  overflow: hidden;
+}
+
+.audioTitle {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: 0.625rem;
+  line-height: 1.15;
+  text-align: center;
+  word-break: break-word;
+  color: var(--color-text-secondary);
+}
+
+.audioMeta {
+  font-size: 0.625rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.roleBadge {
+  position: absolute;
+  bottom: 0.2rem;
+  left: 0.2rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: calc(1.25rem + 2px);
+  height: calc(1.25rem + 2px);
+  padding: 0 0.2rem;
+  border-radius: 999px;
+  background: var(--color-dark-green);
+  box-shadow: 0 2px 2px rgb(0 0 0 / 50%);
+  color: var(--color-success);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.roleBadgeWide {
+  min-width: 2.25rem;
+  padding: 0 0.3rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    transition: none;
+  }
+}

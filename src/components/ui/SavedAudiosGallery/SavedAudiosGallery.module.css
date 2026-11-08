@@ -1,0 +1,101 @@
+.cardInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--space-xs);
+  cursor: zoom-in;
+  color: var(--color-text-muted);
+  overflow: hidden;
+}
+
+.cardInner[draggable='true'] {
+  cursor: grab;
+  /* Allow native HTML5 drag; GalleryTile sortable uses touch-action: none. */
+  touch-action: auto;
+  -webkit-user-drag: element;
+  user-select: none;
+}
+
+.cardInner[draggable='true']:active {
+  cursor: grabbing;
+}
+
+.cardLabel {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  max-width: 100%;
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  text-align: center;
+  word-break: break-word;
+  color: var(--color-text-secondary);
+}
+
+.cardMeta {
+  font-size: var(--font-size-sm);
+  line-height: 1.2;
+  color: var(--color-text-muted);
+}
+
+.roleBar {
+  position: absolute;
+  bottom: 0.35rem;
+  left: 0.35rem;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  max-width: calc(100% - 0.7rem);
+}
+
+.roleButton {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: calc(1.25rem + 2px);
+  height: calc(1.25rem + 2px);
+  min-width: calc(1.25rem + 2px);
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  box-shadow: 0 2px 2px rgb(0 0 0 / 50%);
+  color: color-mix(in srgb, var(--color-text-primary) 40%, transparent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.roleButton:hover:not(:disabled):not(.roleButtonActive),
+.roleButton:focus-visible:not(:disabled):not(.roleButtonActive) {
+  color: var(--color-text-primary);
+}
+
+.roleButton:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.roleButtonWide {
+  width: auto;
+  min-width: calc(1.75rem + 2px);
+  padding: 0 0.35rem;
+  border-radius: 999px;
+}
+
+.roleButtonActive {
+  color: var(--color-text-primary);
+  background: var(--color-accent-soft, var(--color-bg-elevated));
+}

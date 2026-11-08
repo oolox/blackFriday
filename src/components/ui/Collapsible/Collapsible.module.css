@@ -1,0 +1,41 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: 0;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin: 0;
+  padding: var(--space-sm) 0;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-align: left;
+}
+
+.header:hover,
+.header:focus-visible {
+  color: var(--color-text-primary);
+}
+
+.caret {
+  flex-shrink: 0;
+  color: inherit;
+}
+
+.title {
+  min-width: 0;
+}
+
+.body {
+  min-width: 0;
+}

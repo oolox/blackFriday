@@ -1,0 +1,167 @@
+.root {
+  position: relative;
+  margin-top: var(--space-md);
+  min-width: 0;
+  padding: 0;
+  border: 1px solid rgb(128 128 128 / 50%);
+  border-radius: 1rem;
+}
+
+.root.open {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.root.closed {
+  border: none;
+  border-radius: 0;
+}
+
+.body {
+  width: 100%;
+  min-width: 0;
+  min-height: 16rem;
+}
+
+.open .body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 16rem;
+}
+
+.open .body > * {
+  flex: 1 1 auto;
+  min-height: 16rem;
+}
+
+.generatorPane,
+.galleryPane {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.generatorHeader,
+.galleryHeader {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+}
+
+.galleryLeading {
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  padding-top: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    grid-template-rows 0.24s ease,
+    padding-top 0.24s ease,
+    opacity 0.2s ease;
+}
+
+.galleryLeadingOpen {
+  grid-template-rows: 1fr;
+  padding-top: 1rem;
+  opacity: 1;
+}
+
+.galleryLeadingClip {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.galleryLeadingInner {
+  transform: translateY(-100%);
+  transition: transform 0.24s ease;
+}
+
+.galleryLeadingOpen .galleryLeadingInner {
+  transform: translateY(0);
+}
+
+.galleryBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.galleryFooter {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.galleryDrop {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.generate {
+  margin: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Generator view: no outer chrome / pane inset (Character keeps default). */
+.bare {
+  border: none;
+  border-radius: 0;
+  margin-top: 0;
+}
+
+.bare .generatorPane,
+.bare .galleryPane {
+  padding: 0;
+  overflow: hidden;
+}
+
+.bare .generate {
+  padding: 0.5rem;
+  overflow: auto;
+}
+
+.bare.flushGenerator .generate {
+  padding: 0;
+  overflow: hidden;
+}
+
+.bare .galleryLeading {
+  padding-left: var(--space-md);
+  padding-right: var(--space-md);
+}
+
+.bare .galleryLeadingOpen {
+  padding-top: 1rem;
+}
+
+.bare .galleryBody {
+  padding: 0 var(--space-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galleryLeading,
+  .galleryLeadingInner {
+    transition: none;
+  }
+}

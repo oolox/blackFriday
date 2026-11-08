@@ -1,0 +1,18 @@
+/* No forced width/height — renders at native pixel resolution, only ever
+   scaled down (never up) to fit the viewport. */
+.video {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  cursor: default;
+  background: #000;
+}
+
+.loading {
+  margin: 0;
+  padding: 2rem 3rem;
+  color: var(--color-text-secondary, #ccc);
+  font-size: 0.95rem;
+  cursor: default;
+}

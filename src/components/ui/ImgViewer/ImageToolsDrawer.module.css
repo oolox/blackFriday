@@ -1,0 +1,97 @@
+.drawer {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--space-sm);
+  max-width: 100%;
+  max-height: 100%;
+  line-height: normal;
+  pointer-events: auto;
+  cursor: default;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.35rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg-panel) 88%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  box-shadow: 0 0.35rem 1.25rem rgb(0 0 0 / 35%);
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  min-width: 10.5rem;
+  max-width: 16rem;
+  max-height: 100%;
+  overflow: auto;
+  padding: 0.65rem 0.75rem;
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-bg-panel) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  box-shadow: 0 0.35rem 1.25rem rgb(0 0 0 / 35%);
+  color: var(--color-text-primary);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.fieldLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+/* Disabled controls are not hit-targets; keep the row opaque so clicks
+   cannot fall through to the image and dismiss the viewer. */
+.actions :global(button:disabled) {
+  pointer-events: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.input {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--color-text-primary) 28%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--color-bg-input) 90%, transparent);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+  outline: none;
+}
+
+.input:focus-visible {
+  border-color: color-mix(in srgb, var(--color-text-primary) 65%, transparent);
+}

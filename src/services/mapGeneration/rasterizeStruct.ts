@@ -1,4 +1,4 @@
-import { cellIndex, type MapLayout, type TileCoord } from '../../types/map';
+import { cellIndex, roomRects, type MapLayout, type TileCoord } from '../../types/map';
 import type { Tile } from '../../types/tile';
 
 export interface StructStamp {
@@ -20,6 +20,7 @@ const UNSET = 0;
 const FLOOR = 1;
 const WALL = 2;
 const DOOR = 3;
+const OUTSIDE = 4;
 
 function structTiles(tiles: readonly Tile[], action: StructAction): Tile[] {
   return tiles.filter((tile) => tile.type === 'struct' && tile.actAs?.action === action);
@@ -88,18 +89,31 @@ export function rasterizeStruct(
 
   const { width, height } = layout;
   const roles = new Uint8Array(width * height);
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (x === 0 || y === 0 || x === width - 1 || y === height - 1) {
-        roles[cellIndex(width, x, y)] = WALL;
+  const hasOutside = (layout.outside?.length ?? 0) > 0;
+  if (!hasOutside) {
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if (x === 0 || y === 0 || x === width - 1 || y === height - 1) {
+          roles[cellIndex(width, x, y)] = WALL;
+        }
       }
+    }
+  } else {
+    for (const cell of layout.outside ?? []) {
+      if (cell.x < 0 || cell.y < 0 || cell.x >= width || cell.y >= height) {
+        errors.push(`cell (${cell.x},${cell.y}) is outside the map`);
+        continue;
+      }
+      roles[cellIndex(width, cell.x, cell.y)] = OUTSIDE;
     }
   }
 
   for (const room of layout.rooms) {
-    for (let y = room.y; y < room.y + room.height; y++) {
-      for (let x = room.x; x < room.x + room.width; x++) {
-        claim(roles, width, { x, y }, FLOOR, UNSET, errors);
+    for (const part of roomRects(room)) {
+      for (let y = part.y; y < part.y + part.height; y++) {
+        for (let x = part.x; x < part.x + part.width; x++) {
+          claim(roles, width, { x, y }, FLOOR, UNSET, errors);
+        }
       }
     }
   }
@@ -109,6 +123,8 @@ export function rasterizeStruct(
       claim(roles, width, cell, WALL, UNSET, errors);
     }
   }
+
+  promoteShell(roles, width, height);
 
   for (const opening of layout.openings) {
     const role = opening.kind === 'door' ? DOOR : FLOOR;
@@ -147,4 +163,59 @@ export function rasterizeStruct(
   }
 
   return { ok: true, grid: { palette, cells, interiorTiles } };
+}
+
+function promoteShell(roles: Uint8Array, width: number, height: number): void {
+  const adjacent = (x: number, y: number, role: number) => {
+    const neighbors: Array<[number, number]> = [
+      [x - 1, y],
+      [x + 1, y],
+      [x, y - 1],
+      [x, y + 1],
+    ];
+    return neighbors.some(([nx, ny]) => {
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
+        return false;
+      }
+      return roles[cellIndex(width, nx, ny)] === role;
+    });
+  };
+  const paint = (predicate: (x: number, y: number, index: number) => boolean) => {
+    const indexes: number[] = [];
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const index = cellIndex(width, x, y);
+        if (predicate(x, y, index)) {
+          indexes.push(index);
+        }
+      }
+    }
+    for (const index of indexes) {
+      roles[index] = WALL;
+    }
+  };
+  paint((x, y, index) => roles[index] === UNSET && adjacent(x, y, FLOOR));
+  paint((x, y, index) => {
+    if (roles[index] !== UNSET && roles[index] !== OUTSIDE) {
+      return false;
+    }
+    const corners: Array<[number, number]> = [
+      [x - 1, y - 1],
+      [x + 1, y - 1],
+      [x - 1, y + 1],
+      [x + 1, y + 1],
+    ];
+    return corners.some(([nx, ny]) => {
+      if (nx < 0 || ny < 0 || nx >= width || ny >= height) {
+        return false;
+      }
+      return roles[cellIndex(width, nx, ny)] === FLOOR;
+    });
+  });
+  paint(
+    (x, y, index) =>
+      roles[index] === UNSET &&
+      (x === 0 || y === 0 || x === width - 1 || y === height - 1) &&
+      adjacent(x, y, WALL),
+  );
 }

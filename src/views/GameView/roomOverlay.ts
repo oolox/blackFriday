@@ -1,4 +1,4 @@
-import type { Room } from '../../types/map';
+import { roomRects, type Room } from '../../types/map';
 
 /** Type on the first line, id on the second, until rooms have display names. */
 export function roomOverlayText(room: Room): string {
@@ -13,5 +13,15 @@ export function roomIntersects(
   x1: number,
   y1: number,
 ): boolean {
-  return room.x < x1 && room.x + room.width > x0 && room.y < y1 && room.y + room.height > y0;
+  return roomRects(room).some(
+    (part) => part.x < x1 && part.x + part.width > x0 && part.y < y1 && part.y + part.height > y0,
+  );
+}
+
+/** Center of the largest floor rectangle, so a ring's label stays on the floor. */
+export function roomLabelAnchor(room: Room): { x: number; y: number } {
+  const part = roomRects(room).reduce((largest, candidate) =>
+    candidate.width * candidate.height > largest.width * largest.height ? candidate : largest,
+  );
+  return { x: part.x + part.width / 2, y: part.y + part.height / 2 };
 }

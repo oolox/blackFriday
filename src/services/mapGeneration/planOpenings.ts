@@ -1,10 +1,11 @@
-import type {
-  BuildingType,
-  MapLayout,
-  Opening,
-  Room,
-  SharedWall,
-  TileCoord,
+import {
+  roomRects,
+  type BuildingType,
+  type MapLayout,
+  type Opening,
+  type Room,
+  type SharedWall,
+  type TileCoord,
 } from '../../types/map';
 import { openingKind } from './buildingTypeProfile';
 import type { RandomSource } from './randomSource';
@@ -29,12 +30,10 @@ function shuffle<T>(items: readonly T[], rng: RandomSource): T[] {
 }
 
 function roomAt(rooms: readonly Room[], x: number, y: number): string | null {
-  const room = rooms.find(
-    (candidate) =>
-      x >= candidate.x &&
-      y >= candidate.y &&
-      x < candidate.x + candidate.width &&
-      y < candidate.y + candidate.height,
+  const room = rooms.find((candidate) =>
+    roomRects(candidate).some(
+      (part) => x >= part.x && y >= part.y && x < part.x + part.width && y < part.y + part.height,
+    ),
   );
   return room?.id ?? null;
 }

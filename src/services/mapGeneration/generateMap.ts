@@ -1,6 +1,7 @@
 import type { GeneratedMap, MapParameters } from '../../types/map';
 import type { Tile } from '../../types/tile';
 import { ADJACENCY_GENERATOR_ID, generateAdjacencyLayout } from './generateAdjacencyLayout';
+import { PROGRAM_GENERATOR_ID, generateProgramLayout } from './generateProgramLayout';
 import { BSP_GENERATOR_ID, generateBspLayout } from './generateBspLayout';
 import { rasterizeStruct, type StructStamp } from './rasterizeStruct';
 
@@ -16,13 +17,15 @@ export interface GenerateMapRequest {
 export type GenerateMapResult = { ok: true; map: GeneratedMap } | { ok: false; errors: string[] };
 
 export function generateMap(request: GenerateMapRequest): GenerateMapResult {
-  const generatorId = request.generatorId ?? ADJACENCY_GENERATOR_ID;
+  const generatorId = request.generatorId ?? PROGRAM_GENERATOR_ID;
   const layout =
-    generatorId === ADJACENCY_GENERATOR_ID
-      ? generateAdjacencyLayout(request.parameters, request.seed)
-      : generatorId === BSP_GENERATOR_ID
-        ? generateBspLayout(request.parameters, request.seed)
-        : null;
+    generatorId === PROGRAM_GENERATOR_ID
+      ? generateProgramLayout(request.parameters, request.seed)
+      : generatorId === ADJACENCY_GENERATOR_ID
+        ? generateAdjacencyLayout(request.parameters, request.seed)
+        : generatorId === BSP_GENERATOR_ID
+          ? generateBspLayout(request.parameters, request.seed)
+          : null;
   if (!layout) {
     return { ok: false, errors: [`unknown generator ${generatorId}`] };
   }

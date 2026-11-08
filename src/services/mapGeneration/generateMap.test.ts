@@ -44,7 +44,7 @@ describe('generateMap', () => {
 
     const { map } = result;
     const { width, height } = map.layout;
-    expect(map.generatorId).toBe('adjacency-v1');
+    expect(map.generatorId).toBe('program-v1');
     expect(map.palette).toEqual(['', structId('floor'), structId('wall'), structId('door')]);
     expect(map.cells).toHaveLength(width * height);
     expect(gridIssues(width, height, map.palette, map.cells)).toEqual([]);
@@ -124,6 +124,7 @@ describe('generateMap', () => {
       parameters: { areaSquareFeet: 2000, roomCount: 4, buildingType: 'residential' },
       tiles,
       seed: 'graph',
+      generatorId: 'adjacency-v1',
     });
     expect(adjacency.ok).toBe(true);
     if (!adjacency.ok) {

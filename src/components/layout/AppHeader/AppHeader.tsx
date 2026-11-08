@@ -9,9 +9,11 @@ interface AppHeaderProps {
 }
 
 type PlayMode = 'sandbox' | 'game';
+type Planner = 'algo' | 'llm';
 
 export function AppHeader({ title }: AppHeaderProps) {
   const [mode, setMode] = useState<PlayMode>('sandbox');
+  const [planner, setPlanner] = useState<Planner>('algo');
   const { requestNew } = useSandboxSession();
 
   return (
@@ -22,14 +24,28 @@ export function AppHeader({ title }: AppHeaderProps) {
           aria-label="Mode"
           idPrefix="mode"
           items={[
-            { id: 'sandbox', label: 'Sandbox' },
-            { id: 'game', label: 'Game', disabled: true },
+            { id: 'sandbox', label: 'SANDBOX' },
+            { id: 'game', label: 'GAME', disabled: true },
           ]}
           value={mode}
           onChange={(id) => {
             if (id === 'sandbox' && mode !== 'sandbox') {
               setMode('sandbox');
               requestNew();
+            }
+          }}
+        />
+        <Tabs
+          aria-label="Planner"
+          idPrefix="planner"
+          items={[
+            { id: 'algo', label: 'ALGO' },
+            { id: 'llm', label: 'LLM', disabled: true },
+          ]}
+          value={planner}
+          onChange={(id) => {
+            if (id === 'algo') {
+              setPlanner('algo');
             }
           }}
         />

@@ -14,7 +14,7 @@ import {
   type Camera,
   type ViewSize,
 } from './camera';
-import { roomIntersects, roomOverlayText } from './roomOverlay';
+import { roomIntersects, roomLabelAnchor, roomOverlayText } from './roomOverlay';
 
 export interface MapViewHandle {
   redraw: () => void;
@@ -152,13 +152,8 @@ export async function mountMapView(
         if (!inside) {
           continue;
         }
-        const center = worldToScreen(
-          entry.room.x + entry.room.width / 2,
-          entry.room.y + entry.room.height / 2,
-          camera,
-          view,
-          TILE_PX,
-        );
+        const anchor = roomLabelAnchor(entry.room);
+        const center = worldToScreen(anchor.x, anchor.y, camera, view, TILE_PX);
         entry.text.position.set(center.x, center.y);
       }
     }

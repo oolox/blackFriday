@@ -17,15 +17,32 @@ export interface TileCoord {
   y: number;
 }
 
-/** Interior rectangle. Excludes the surrounding wall. */
+/** One floor rectangle of a room. Excludes the surrounding wall. */
+export interface RoomPart {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Interior floor. Excludes the surrounding wall. */
 export interface Room {
   id: string;
   x: number;
   y: number;
   width: number;
   height: number;
+  /**
+   * Further floor rectangles for an L, a U, or a ring.
+   * The fields above are the first rectangle.
+   */
+  parts?: RoomPart[];
   /** Set by an adjacency template, such as `hall` or `sales`. */
   role?: string;
+}
+
+export function roomRects(room: Room): RoomPart[] {
+  return [{ x: room.x, y: room.y, width: room.width, height: room.height }, ...(room.parts ?? [])];
 }
 
 /** A one-tile cut between two groups of rooms. Each cut gets one opening. */
@@ -57,6 +74,8 @@ export interface MapLayout {
   rooms: Room[];
   walls: SharedWall[];
   openings: Opening[];
+  /** Empty cells inside the box: an atrium, or the missing corner of an L. */
+  outside?: TileCoord[];
 }
 
 export interface GeneratedMap {
@@ -103,12 +122,32 @@ function edgeIssue(name: string, value: number): string | null {
   return null;
 }
 
+function partContains(part: RoomPart, x: number, y: number): boolean {
+  return x >= part.x && y >= part.y && x < part.x + part.width && y < part.y + part.height;
+}
+
 function roomContains(room: Room, x: number, y: number): boolean {
-  return x >= room.x && y >= room.y && x < room.x + room.width && y < room.y + room.height;
+  return roomRects(room).some((part) => partContains(part, x, y));
+}
+
+function partsOverlap(a: RoomPart, b: RoomPart): boolean {
+  return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 }
 
 function rectanglesOverlap(a: Room, b: Room): boolean {
-  return a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+  return roomRects(a).some((part) => roomRects(b).some((other) => partsOverlap(part, other)));
+}
+
+function partsShareEdge(a: RoomPart, b: RoomPart): boolean {
+  const vertical = a.x + a.width === b.x || b.x + b.width === a.x;
+  const horizontal = a.y + a.height === b.y || b.y + b.height === a.y;
+  if (vertical === horizontal) {
+    return false;
+  }
+  if (vertical) {
+    return Math.min(a.y + a.height, b.y + b.height) > Math.max(a.y, b.y);
+  }
+  return Math.min(a.x + a.width, b.x + b.width) > Math.max(a.x, b.x);
 }
 
 function touchesRoom(room: Room, x: number, y: number): boolean {
@@ -168,14 +207,55 @@ export function layoutIssues(layout: MapLayout): string[] {
       issues.push(`room ${room.id} must have an integer origin and a positive integer size`);
       continue;
     }
-    if (
-      room.x < 0 ||
-      room.y < 0 ||
-      room.x + room.width > layout.width ||
-      room.y + room.height > layout.height
-    ) {
+    const rects = roomRects(room);
+    const outside = rects.some(
+      (part) =>
+        part.x < 0 ||
+        part.y < 0 ||
+        part.x + part.width > layout.width ||
+        part.y + part.height > layout.height ||
+        !isPositiveInteger(part.width) ||
+        !isPositiveInteger(part.height),
+    );
+    if (outside) {
       issues.push(`room ${room.id} is outside the map`);
       continue;
+    }
+    for (let i = 0; i < rects.length; i++) {
+      for (let j = i + 1; j < rects.length; j++) {
+        const left = rects[i];
+        const right = rects[j];
+        if (left && right && partsOverlap(left, right)) {
+          issues.push(`room ${room.id} overlaps itself`);
+        }
+      }
+    }
+    if (rects.length > 1) {
+      const seen = new Set<number>([0]);
+      let grew = true;
+      while (grew) {
+        grew = false;
+        for (let i = 0; i < rects.length; i++) {
+          if (seen.has(i)) {
+            continue;
+          }
+          const part = rects[i];
+          if (!part) {
+            continue;
+          }
+          for (const index of seen) {
+            const other = rects[index];
+            if (other && partsShareEdge(part, other)) {
+              seen.add(i);
+              grew = true;
+              break;
+            }
+          }
+        }
+      }
+      if (seen.size !== rects.length) {
+        issues.push(`room ${room.id} is not connected`);
+      }
     }
     rooms.push(room);
   }

@@ -18,8 +18,10 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('region', { name: 'Assets' })).toBeInTheDocument();
     expect(screen.getByRole('separator', { name: 'Resize game and assets' })).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'Play' })).not.toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: 'Sandbox' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.getByRole('tab', { name: 'Game' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'SANDBOX' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'GAME' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'ALGO' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tab', { name: 'LLM' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'New' })).toBeInTheDocument();
     expect(screen.getByRole('dialog', { name: 'Generate New Map' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();

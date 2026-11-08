@@ -36,6 +36,21 @@ describe('FullScreenModal', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
+  it('stays open when it cannot be dismissed', async () => {
+    const user = userEvent.setup();
+    const onClose = vi.fn();
+    render(
+      <FullScreenModal open dismissible={false} onClose={onClose}>
+        Required
+      </FullScreenModal>,
+    );
+
+    expect(screen.queryByRole('button', { name: 'Close modal' })).not.toBeInTheDocument();
+    await user.keyboard('{Escape}');
+    await user.click(screen.getByRole('dialog', { name: 'Modal' }));
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
   it('closes on Escape', async () => {
     const user = userEvent.setup();
     const onClose = vi.fn();

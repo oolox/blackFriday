@@ -43,6 +43,26 @@ describe('Tabs', () => {
     expect(onChange).toHaveBeenCalledWith('prompts');
   });
 
+  it('skips a disabled tab', async () => {
+    const user = userEvent.setup();
+    const onChange = vi.fn();
+    render(
+      <Tabs
+        items={[
+          { id: 'sandbox', label: 'Sandbox' },
+          { id: 'game', label: 'Game', disabled: true },
+        ]}
+        value="sandbox"
+        onChange={onChange}
+      />,
+    );
+
+    expect(screen.getByRole('tab', { name: 'Game' })).toBeDisabled();
+    screen.getByRole('tab', { name: 'Sandbox' }).focus();
+    await user.keyboard('{ArrowRight}');
+    expect(onChange).toHaveBeenCalledWith('sandbox');
+  });
+
   it('marks a busy tab with aria-busy', () => {
     render(
       <Tabs

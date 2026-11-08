@@ -5,6 +5,27 @@
   min-height: 0;
 }
 
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  width: 100%;
+  min-width: 0;
+  padding-right: var(--space-md);
+}
+
+.control {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 .items {
   flex: 1;
   min-height: 0;

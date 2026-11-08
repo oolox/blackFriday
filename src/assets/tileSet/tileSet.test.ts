@@ -28,7 +28,7 @@ describe('tiles', () => {
 
       switch (actAs.action) {
         case 'wall':
-        case 'shelf':
+        case 'surface':
           expect(actAs.speed).toBe(0);
           break;
         case 'floor':
@@ -39,7 +39,7 @@ describe('tiles', () => {
         case 'slow':
           expect(actAs.speed).toBeGreaterThan(0);
           break;
-        case 'characterSpeed':
+        case 'speedUp':
           expect(actAs.speed).toBeGreaterThan(0);
           expect(actAs.duration).toBeGreaterThan(0);
           break;

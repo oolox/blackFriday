@@ -66,7 +66,13 @@ export function DropdownSelect({
       return;
     }
     const rect = trigger.getBoundingClientRect();
-    setMenuPos({ top: rect.bottom + 4, left: rect.left, width: rect.width });
+    const menuWidth = Math.max(rect.width, menuRef.current?.offsetWidth ?? 0);
+    const maxLeft = Math.max(8, window.innerWidth - menuWidth - 8);
+    setMenuPos({
+      top: rect.bottom + 4,
+      left: Math.min(rect.left, maxLeft),
+      width: rect.width,
+    });
   }, []);
 
   const setOpenSafe = useCallback(

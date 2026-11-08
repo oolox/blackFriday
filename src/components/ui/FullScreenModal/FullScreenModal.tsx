@@ -9,6 +9,8 @@ export interface FullScreenModalProps {
   children?: ReactNode;
   ariaLabel?: string;
   closeLabel?: string;
+  /** When false, the backdrop, Escape, and the corner close control stay inactive. */
+  dismissible?: boolean;
 }
 
 /** Reusable fullscreen modal: dimmed backdrop, top-right close, centered panel. */
@@ -18,6 +20,7 @@ export function FullScreenModal({
   children = 'Placeholder',
   ariaLabel = 'Modal',
   closeLabel = 'Close modal',
+  dismissible = true,
 }: FullScreenModalProps) {
   useEffect(() => {
     if (!open) {
@@ -28,7 +31,7 @@ export function FullScreenModal({
     document.body.style.overflow = 'hidden';
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
+      if (dismissible && event.key === 'Escape') {
         onClose();
       }
     };
@@ -38,7 +41,7 @@ export function FullScreenModal({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', onKeyDown);
     };
-  }, [open, onClose]);
+  }, [dismissible, open, onClose]);
 
   if (!open) {
     return null;
@@ -54,19 +57,25 @@ export function FullScreenModal({
       role="dialog"
       aria-modal="true"
       aria-label={ariaLabel}
-      onClick={onClose}
-    >
-      <IconButton
-        className={styles.close}
-        icon="close"
-        label={closeLabel}
-        variant="secondary"
-        size="md"
-        onClick={(event) => {
-          event.stopPropagation();
+      onClick={() => {
+        if (dismissible) {
           onClose();
-        }}
-      />
+        }
+      }}
+    >
+      {dismissible ? (
+        <IconButton
+          className={styles.close}
+          icon="close"
+          label={closeLabel}
+          variant="secondary"
+          size="md"
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+        />
+      ) : null}
       <div className={styles.center}>
         <div className={styles.panel} onClick={stopPropagation}>
           <div className={styles.body}>{children}</div>

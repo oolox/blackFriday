@@ -8,26 +8,29 @@
   background: var(--color-bg-app);
 }
 
-.body {
-  flex: 1;
-  min-height: 0;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
-  padding: var(--space-lg);
-  text-align: center;
-}
-
-.body h1 {
+.title {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
   letter-spacing: 0.04em;
 }
 
-.body p {
-  margin: 0;
-  color: var(--color-text-secondary);
+.body {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+}
+
+.stage {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  touch-action: none;
+  user-select: none;
+}
+
+.stage canvas {
+  display: block;
 }

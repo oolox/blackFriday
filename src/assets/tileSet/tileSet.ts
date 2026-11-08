@@ -41,14 +41,14 @@ export const tiles: TileSet = [
     id: '43a4b451-9dd4-4d8c-aa83-bee37ada98e1',
     type: 'struct',
     name: 'Shelf 1',
-    actAs: { action: 'shelf', speed: 0 },
+    actAs: { action: 'surface', speed: 0 },
     file: 'assets/sprites/struct5.png',
   },
   {
     id: '4196f64d-6797-427f-8cd1-925b7fe972c3',
     type: 'struct',
     name: 'Shelf 2',
-    actAs: { action: 'shelf', speed: 0 },
+    actAs: { action: 'surface', speed: 0 },
     file: 'assets/sprites/struct6.png',
   },
   {
@@ -230,7 +230,7 @@ export const tiles: TileSet = [
     id: '523e9b82-7192-4cfc-96e6-04af1437c221',
     type: 'trigger',
     name: 'Coffee',
-    actAs: { action: 'characterSpeed', speed: 2, duration: 10 },
+    actAs: { action: 'speedUp', speed: 2, duration: 10 },
     file: 'assets/sprites/obj0.png',
   },
   {

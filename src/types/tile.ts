@@ -6,13 +6,13 @@ export type TileAction = TileActAs['action'];
 
 /** Walk speed on a map tile. 0 is impassable, as with a wall. 1 is full speed. */
 export interface TileMoveActAs {
-  action: 'floor' | 'wall' | 'door' | 'shelf';
+  action: 'floor' | 'wall' | 'door' | 'surface';
   speed: number;
 }
 
-/** Temporary speed change for the character who steps on the tile. */
-export interface TileCharacterSpeedActAs {
-  action: 'characterSpeed';
+/** Temporary speed increase for the character who steps on the tile. */
+export interface TileSpeedUpActAs {
+  action: 'speedUp';
   speed: number;
   duration: number;
 }
@@ -46,7 +46,7 @@ export interface TileSlowActAs {
 
 export type TileActAs =
   | TileMoveActAs
-  | TileCharacterSpeedActAs
+  | TileSpeedUpActAs
   | TileSaleActAs
   | TilePurchaseActAs
   | TileSlideActAs

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="20" viewBox="0 0 96 20" fill="none" role="img" aria-label="Loading">
+  <style>
+    circle {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: dotPulse 3.6s ease-in-out infinite;
+      stroke: #f97316;
+      stroke-width: 2.5;
+    }
+    .dot2 { animation-delay: -1.2s; }
+    .dot3 { animation-delay: -2.4s; }
+    @keyframes dotPulse {
+      0%, 28%, 100% { opacity: 0.35; transform: scale(0.82); }
+      14% { opacity: 1; transform: scale(1.12); }
+    }
+  </style>
+  <circle class="dot1" cx="28" cy="10" r="7" />
+  <circle class="dot2" cx="48" cy="10" r="7" />
+  <circle class="dot3" cx="68" cy="10" r="7" />
+</svg>

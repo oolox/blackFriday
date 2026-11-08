@@ -5,6 +5,7 @@ export interface TabsItem {
   id: string;
   label: string;
   busy?: boolean;
+  disabled?: boolean;
 }
 
 export interface TabsProps {
@@ -42,6 +43,17 @@ export function Tabs({
     node?.focus();
   };
 
+  const stepToEnabled = (start: number, direction: 1 | -1): number => {
+    let index = start;
+    for (let step = 0; step < items.length; step++) {
+      index = (index + direction + items.length) % items.length;
+      if (!items[index]?.disabled) {
+        return index;
+      }
+    }
+    return start;
+  };
+
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (disabled || items.length === 0) {
       return;
@@ -52,23 +64,34 @@ export function Tabs({
     );
     if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
       event.preventDefault();
-      const next = (currentIndex + 1) % items.length;
+      const next = stepToEnabled(currentIndex, 1);
       onChange(items[next]!.id);
       focusTabAt(next);
     } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
       event.preventDefault();
-      const next = (currentIndex - 1 + items.length) % items.length;
+      const next = stepToEnabled(currentIndex, -1);
       onChange(items[next]!.id);
       focusTabAt(next);
     } else if (event.key === 'Home') {
       event.preventDefault();
-      onChange(items[0]!.id);
-      focusTabAt(0);
+      const next = items.findIndex((item) => !item.disabled);
+      if (next >= 0) {
+        onChange(items[next]!.id);
+        focusTabAt(next);
+      }
     } else if (event.key === 'End') {
       event.preventDefault();
-      const last = items.length - 1;
-      onChange(items[last]!.id);
-      focusTabAt(last);
+      let next = -1;
+      for (let index = items.length - 1; index >= 0; index--) {
+        if (!items[index]?.disabled) {
+          next = index;
+          break;
+        }
+      }
+      if (next >= 0) {
+        onChange(items[next]!.id);
+        focusTabAt(next);
+      }
     }
   };
 
@@ -89,7 +112,7 @@ export function Tabs({
             role="tab"
             aria-selected={selected}
             tabIndex={selected ? 0 : -1}
-            disabled={disabled}
+            disabled={disabled || item.disabled}
             className={[
               styles.tab,
               selected ? styles.tabActive : '',
@@ -98,7 +121,9 @@ export function Tabs({
               .join(' ')}
             aria-busy={item.busy || undefined}
             onClick={() => {
-              onChange(item.id);
+              if (!item.disabled) {
+                onChange(item.id);
+              }
             }}
           >
             {item.label}

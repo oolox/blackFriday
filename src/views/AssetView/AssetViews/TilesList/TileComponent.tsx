@@ -7,10 +7,10 @@ function actAsParams(actAs: TileActAs): Array<[string, number]> {
     case 'floor':
     case 'wall':
     case 'door':
-    case 'shelf':
+    case 'surface':
     case 'slow':
       return [['speed', actAs.speed]];
-    case 'characterSpeed':
+    case 'speedUp':
       return [
         ['speed', actAs.speed],
         ['duration', actAs.duration],

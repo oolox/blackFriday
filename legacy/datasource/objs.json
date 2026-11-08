@@ -1,0 +1,9 @@
+[
+  { "id":"0", "type":"obj", "name":"Coffee", "actAs":"speed", "ammount":"2", "file":"sprites/obj0.png"},
+  { "id":"1", "type":"obj", "name":"25% Off", "actAs":"sale", "ammount":".25", "file":"sprites/obj1.png"},
+  { "id":"2", "type":"obj", "name":"50% Off", "actAs":"sale", "ammount":".50", "file":"sprites/obj2.png"},
+  { "id":"3", "type":"obj", "name":"75% Off", "actAs":"sale", "ammount":".75", "file":"sprites/obj3.png"},
+  { "id":"4", "type":"obj", "name":"Wet Floor", "actAs":"slide", "ammount":".75", "file":"sprites/obj4.png"},
+  { "id":"5", "type":"obj", "name":"Register", "actAs":"register", "ammount":"0", "file":"sprites/obj5.png"},
+  { "id":"6", "type":"obj", "name":"Stop Watch", "actAs":"slow", "ammount":"0", "file":"sprites/obj6.png"}
+]

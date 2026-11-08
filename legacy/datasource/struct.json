@@ -1,0 +1,14 @@
+[
+  { "id":"0", "type":"struct", "name":"Wall", "actAs":"wall", "file":"sprites/struct0.png", "speed":0},
+  { "id":"1", "type":"struct", "name":"Wall", "actAs":"wall", "file":"sprites/struct1.png", "speed":0},
+  { "id":"2", "type":"struct", "name":"Floor", "actAs":"floor", "file":"sprites/struct2.png", "speed":10},
+  { "id":"3", "type":"struct", "name":"Floor", "actAs":"floor", "file":"sprites/struct3.png", "speed":10},
+  { "id":"4", "type":"struct", "name":"Floor", "actAs":"floor", "file":"sprites/struct4.png", "speed":7},
+  { "id":"5", "type":"struct", "name":"Shelf", "actAs":"shelf", "file":"sprites/struct5.png", "speed":0},
+  { "id":"6", "type":"struct", "name":"Shelf", "actAs":"shelf", "file":"sprites/struct6.png", "speed":0},
+  { "id":"7", "type":"struct", "name":"Door", "actAs":"door", "file":"sprites/struct7.png", "speed":5},
+  { "id":"8", "type":"struct", "name":"Door", "actAs":"door", "file":"sprites/struct8.png", "speed":5},
+  { "id":"9", "type":"struct", "name":"Door", "actAs":"door", "file":"sprites/struct9.png", "speed":5}
+
+
+]

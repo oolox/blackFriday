@@ -1,0 +1,12 @@
+[
+  { "id":"0", "type":"spawn", "name":"White Trash", "file":"sprites/shopper0.png", "speed":4, "random":4, "hp":5, "buy":2 },
+  { "id":"1", "type":"spawn", "name":"Baby Momma", "file":"sprites/shopper1.png", "speed":6, "random":5, "hp":5 , "buy":6 },
+  { "id":"2", "type":"spawn", "name":"Geiser", "file":"sprites/shopper2.png", "speed":2, "random":0, "hp":3 , "buy":1 },
+  { "id":"3", "type":"spawn", "name":"Vato", "file":"sprites/shopper3.png", "speed":5, "random":2, "hp":7, "buy":5 },
+  { "id":"4", "type":"spawn", "name":"Shopaholic", "file":"sprites/shopper4.png", "speed":4, "random":7, "hp":10, "buy":8 },
+  { "id":"5", "type":"spawn", "name":"Last Minute", "file":"sprites/shopper5.png", "speed":8, "random":4, "hp":1 , "buy":9 },
+  { "id":"6", "type":"spawn", "name":"Track Suit", "file":"sprites/shopper6.png", "speed":12, "random":3, "hp":8 , "buy":5 },
+  { "id":"7", "type":"spawn", "name":"Kids", "file":"sprites/shopper7.png", "speed":10, "random":10, "hp":1 , "buy":0 },
+  { "id":"8", "type":"spawn", "name":"Spinster", "file":"sprites/shopper8.png", "speed":1, "random":8, "hp":4 , "buy":2 },
+  { "id":"9", "type":"spawn", "name":"Bargin Hunter", "file":"sprites/shopper9.png", "speed":4, "random":10, "hp":2 , "buy":2 }
+]

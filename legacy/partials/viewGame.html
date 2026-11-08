@@ -1,0 +1,574 @@
+
+<div class="container-fluid">
+
+
+ <div id='gameContent' >
+	<div id='respawnScreenBg' ng-if='playerObj.state=="dead"'>
+ 	</div>
+ 	<div id='respawnScreenBg' style='z-index:10004;padding-left:5em' ng-if='playerObj.state=="dead"'>
+ 	
+ 			<br>
+ 			<div style='font-size:500%;color:red'>
+ 				<img src='sprites/player1_dead.png' id='startPlayerImg'></img>
+ 				
+ 				You're Dead!
+ 			</div>
+ 			<div style='font-size:150%;padding-left:2em'>
+ 				Total Attempts: {{timesRespawned}}<br>
+ 				Level: {{levelToLoad+1}}<br>
+ 				Savings so far: ${{gameScore}}<br>
+ 			</div>
+
+ 			<div style='font-size:250%;color:black'>
+ 				<br>
+ 				Press any key to respawn.
+ 			</div>
+ 			
+ 			<br><br>
+ 		<button class="btn btn-default" ng-click='respawn()' 
+	  						style='padding:.25em;font-size:200%' >
+	  				Respawn</button>
+	  	
+	</div>
+
+ 	<div id='levelScreenBg' ng-if="showLevelDialog">
+ 	</div>
+ 	<div id='levelScreenWindow' style='z-index:10003' ng-if="showLevelDialog">
+ 		<div style='font-size:400%' ng-if="gameOver!=true">Level {{levelToLoad+1}} Complete!!</div>
+
+ 			<div style='font-size:400%;color:black' ng-if="gameOver==true">
+ 				YOU WIN!!!
+ 			</div>
+
+
+ 		<div ng-if="levelBudget-levelTotal>0" style='padding-left:1em;color:#008000;font-size:200%'>
+ 			Your savings: ${{levelBudget-levelTotal}}</div>
+ 		<div ng-if="levelBudget-levelTotal==0" style='color:#000080;padding-left:1em;font-size:200%'>Right on budget: ${{levelBudget-levelTotal}}</div>
+ 		<div ng-if="levelBudget-levelTotal<0" style='color:#800000;padding-left:1em;font-size:200%'>You Lost: ${{levelBudget-levelTotal}}</div>
+ 		<div style='font-size:200%;padding-left:1em'>Total Score: ${{gameScore}}</div>
+ 		<span ng-if="gameOver!=true">
+ 			<br>
+			<div style='font-size:200%'>Press any key to continue</div>
+		</span>
+		<span ng-if="gameOver==true">
+ 			<br>
+			<div style='font-size:200%'>Thanks for Playing!</div>
+		</span>
+		
+ 	</div>
+
+ 	<div id='gameScreenBg' ng-if="pregame==true">
+
+ 		<div id='gameScreenWindow' style='overflow:auto' ng-init='showSkip=true;showCredits=false'>
+ 			<button class="btn btn-default" 
+					ng-click='showKeyMap=!showKeyMap;showCredits=false;'
+					style='font-size:50%;'>	  				
+				KEY MAP
+			</button>
+			<button class="btn btn-default" 
+					ng-click='showCredits=!showCredits;showKeyMap=false;'
+					style='font-size:50%;'>	  				
+				CREDITS
+			</button>
+			<span ng-show='startStep<11'>
+				<button class="btn btn-primary" 
+							ng-click='startStep=11'
+							style='font-size:50%;'>	  				
+						SKIP
+				</button>
+			</span>
+			<span ng-show='startStep>10'>
+				<button class="btn btn-primary" 
+							ng-click='shopNow();'
+							style='font-size:50%;'>	  				
+						SHOP NOW!!!
+				</button>
+			</span>
+
+
+			<div ng-if="showKeyMap==true" class='keyTableWindow' >
+				<table class='keyTable'>
+					<tr><td>Arrow Keys</td><td>Move</td><tr>
+					<tr><td>Space</td><td>STOP & Shop</td><tr>
+					
+				</table>
+			</div>
+			<div ng-if="showCredits==true" class='creditWindow' >
+				Paul Cousineau.... Concept, Code, Sound<br>
+				Summer Snover.... Artwork, Sound<br>
+				<br>
+
+				<a href="mailto:oolotronic@hotmail.com">oolotronic@hotmail.com</a><br>
+				Listen to our band... <br>
+				<a href="\rescueteam" target="_blank">www.fanseemusic.com\rescueteam</a>
+				<br><br>
+				This game is provided for free and as is. <br>				
+				(c) 2015 Paul Cousineau, Summer Snover<br>
+				
+				
+			</div>
+
+
+	 		<div ng-if='startStep>=0' style='font-size:350%'>
+	 			It's Black Friday!!!	
+	 		</div>
+
+			<div ng-if='startStep>0'>
+				<img src='sprites/player1.png' id='startPlayerImg'></img>
+	 			"I NEED TO GET EVERYTHING ON MY LIST!"
+	 		</div>
+
+	 		<div ng-if='startStep>1' class='startSpawnImg' style='padding-left:2em'>
+	 			<span ng-repeat="product in productSet track by $index" ng-if="$index<10">
+		  	  	 	<img ng-src="{{product.file}}" style='height:25px;width:25px'/>
+	  		  	</span>
+	  		  	<div >
+	  		  		Use arrow keys to move.	
+	  		  	</div>
+	 		</div>
+	 		<div ng-if='startStep>2' style='padding-left:2em'>
+				<div>
+	  		  		Your shopping list for each level, is on the left of the screen.  		  		  		  		
+	  		  	</div>
+	  		</div>
+
+
+	 		<div ng-if='startStep>3' style='padding-left:2em'>
+				<div>
+	  		  		When your shopper is facing an object, press 'SPACE' to place it in your cart.
+	  		  	</div>
+	  		</div>
+
+	 		<div ng-if='startStep>4'>
+	 			<img src='sprites/player1_dead.png' id='startPlayerImg'></img>
+	 			"OTHER SHOPPERS ARE OUT FOR BLOOD!"
+	 		</div>
+	 		<div ng-if='startStep>5' class='startSpawnImg' style='padding-left:2em'>
+	 			<span ng-repeat="spawn in spawnSet track by $index">
+		  	  	 	<img ng-src="{{spawn.file}}"  style='height:25px;width:25px'/>
+	  		  	</span>
+	  		  	<div >
+	  		  		Avoid other shoppers, or you'll loose a life.  You have only 3 lives!
+	  		  	</div>
+
+	 		</div>
+
+	 		<div ng-if='startStep>6'>
+	 			<img src='sprites/player1_shop.png' id='startPlayerImg'></img>
+	 			"LOOK!! IT'S ON SALE"
+	 		</div>
+	 		<div ng-if='startStep>7' class='startSpawnImg' style='padding-left:2em'>
+	 			<span ng-repeat="obj in objSet track by $index" ng-if='$index!=5'>
+		  	  	 	<img ng-src="{{obj.file}}"  style='height:25px;width:25px'/>
+	  		  	</span>
+	  		  	<div>
+	  		  		Run through special objects for a bonus, or a sale!
+	  		  	</div>
+	 		</div>
+	 		<div ng-if='startStep>8'>
+	 			<img src='sprites/obj5.png'></img>
+	 			"CASHOUT!!"
+	 		</div>
+	 		<div ng-if='startStep>9' class='startSpawnImg' style='padding-left:2em'>
+	 			<div>
+	  		  		Once you have completed your list, run through the register to cashout.
+	  		  	</div>
+	 		</div>
+	 		
+	 		<div ng-if='startStep>10' style='padding-top:1em'>
+ 				<button class="btn btn-primary" 
+	  					ng-click='shopNow()'
+	  					style='font-size:250%;'>	  				
+	  				SHOP NOW!!
+	  			</button>
+	 		</div>
+	 	</div>
+
+	 </div>
+
+
+	<div class="row" style='height:100px;'>
+		<br>
+	  <div class="col-md-2" style="padding-top:10px">
+	  	<h1>Black Friday!</h1>
+	  	Level: {{levelToLoad+1}}
+
+	  	<!-- <button class="btn btn-default" 
+	  					style='position:absolute;left:10px;top:55px;font-size:50%'
+	  					ng-show='gameRun'
+	  					ng-if="gameEdit"
+	  					ng-click='clearGameTimer()'  style='width:5em' >
+	  				STOP</button> -->
+
+
+	  </div>
+	  <div class="col-md-8">
+	  	<table ng-show='!gameRun'>
+	  		<tr>
+	  			<td>Level Name</td>
+	  			<td><input type='text' ng-model="mapname" style='text-align:left;margin-left:10px;width:15em'/></td>
+	  			<td><span style='margin-left:25px;text-align:left'> Size</td>
+	  			<td><input type='text' ng-model="boardWidthPending" style='margin-left:10px;width:3em'/></td>
+	  			<td><input type='text' ng-model="boardHeightPending" style='margin-left:10px;width:3em'/></td>
+	  			<td>
+	  				<button class="btn btn-default" ng-click='showCtrl="products";createEmptyMap();'  style='margin-left:1em;font-size:75%' >
+	  				Create Empty Map
+	  				</button>
+	  			</td>
+	  			<td>
+	  				<button class="btn btn-default" ng-click='saveLevel();'  style='margin-left:10em;font-size:75%' >
+	  				Save Level
+	  				</button>
+	  			</td>
+	  			<td>
+	  				<button class="btn btn-default" ng-click='loadLevel();'  style='margin-left:0em;font-size:75%' >
+	  				Load Level
+	  				</button>
+	  			</td>
+	  			<td><input min=0 type='number' ng-model="levelToLoad" style='margin-left:10px;width:4em'/></td>
+
+	  		</tr>
+	  		<tr>
+	  			<td>Description</td>
+	  			<td><input type='text' ng-model="mapdesc" style='text-align:left;margin-left:10px;width:15em'/></td>
+	  			<td><span style='margin-left:25px;text-align:left'> Speed</td>
+	  			<td><input type='text' ng-model="mapSpeed" style='margin-left:10px;width:3em'/></td>
+	  			<td></td>
+
+	  			<td><button class="btn btn-default" 
+	  					ng-show='!gameRun'
+	  					ng-click='startGameTimer()'  style='margin-left:1em;font-size:75%' >
+	  				START
+	  			</button>
+	  			<button class="btn btn-default" 
+	  					ng-show='gameRun'
+	  					ng-click='clearGameTimer()'  style='margin-left:1em;font-size:75%' >
+	  				STOP</button>
+	  			</td>
+	  			
+
+	  		</tr>
+
+	  	</table>
+
+
+	  	<span ng-show='gameRun' ng-show='gameRun' style='position:absolute;width:100%;height:100%'>
+	  			
+	  			<button class="btn btn-default" ng-click='respawn()'  ng-show='playerObj.state=="dead"'
+	  						style='margin-right:2em;width:5em' >
+	  				Respawn</button>
+
+	  			<span style='position:absolute;left:100px;font-size:400%'>
+	  				${{gameScore}}.00
+	  			</span>
+
+
+	  			<span style='position:absolute;left:450px;font-size:200%' ng-show='isSlow'>
+	  				<img src='sprites/obj6.png'></img>
+	  			</span>
+	  			<span style='position:absolute;left:450px;top:54px;height:10px;width:200px;background-color:green'
+	  					ng-style="{ 'width' : slowTime/2 }"
+	  					ng-show="isSlow"
+	  			>
+	  			</span>
+
+	  			<span style='position:absolute;left:400px;font-size:200%' ng-show='playerObj.speedBuff'>
+	  				<img src='sprites/obj0.png'></img>
+	  			</span>
+	  			<span style='position:absolute;left:400px;top:54px;height:10px;width:200px;background-color:green'
+	  					ng-style="{ 'width' : playerObj.buffCtr/2 }"
+	  					ng-show="playerObj.speedBuff"
+	  			>
+	  			</span>
+	  			<span style='position:absolute;left:350px;font-size:200%' ng-show='isSale'>
+	  				<img src='sprites/obj1.png' ng-show='saleAmmount==.25'/>
+					<img src='sprites/obj2.png' ng-show='saleAmmount==.5'/>
+	  				<img src='sprites/obj3.png' ng-show='saleAmmount==.75'/>
+	  			</span>
+	  			<span style='position:absolute;left:350px;top:54px;height:10px;width:200px;background-color:green'
+	  					ng-style="{ 'width' : saleTime/2 }"
+	  					ng-show="isSale"
+	  			>
+	  			</span>
+	  	</span>
+<!-- 
+	  	<table ng-show='gameRun'>
+	  		<tr style='height:50px;width:100px;'>
+	  			<td><button class="btn btn-default" 
+	  					ng-show='gameRun'
+	  					ng-click='clearGameTimer()'  style='margin-right:2em;font-size:75%;width:5em' >
+	  				STOP</button>
+	  			</td>
+	  			<td>
+	  				<span style='font-size:150%'>{{mapname}}</span>
+	  			</td>
+	  		</tr>
+	  		<tr style='height:50px;width:100px;'>
+	  			<td>
+	  				<button class="btn btn-default" ng-click='respawn()'  ng-show='playerObj.state=="dead"'
+	  						style='margin-right:2em;font-size:75%;width:5em' >
+	  				Respawn</button>
+	  			</td>
+	  			<td>
+	  				<span style='font-size:100%'>{{mapdesc}}</span>
+	  				<span style='font-size:200%'>{{saleStr}}</span>
+	  			
+	  			</td>
+	  			
+	  		</tr>
+
+	  	</table>
+	  	 -->
+
+	  	<br>
+	  </div>
+	  <div class="col-md-2">
+	  		Game by Paul Cousineau<br>
+	  		oolotronic@hotmail.com
+	  </div>
+	</div>
+
+    <div class="row">
+    	<div class="col-md-2" style='padding:0px;margin:0px'>
+		  <div  style='background-color:#ffffe0;margin:10px;padding:10px;'>
+
+		  	  <div style='max-height:500px;overflow-x:hidden;font-size:85%'>
+			  <table ng-show='!gameRun' class='shopListEdit'> 
+			  	<tr>
+			  		<td>NAME&nbsp;&nbsp;</td>
+			  		<td>QUANTITY&nbsp;&nbsp;</td>
+			  		<td>COST&nbsp;&nbsp;</td>
+			  		<td>TOTAL&nbsp;&nbsp;</td>
+			  	</tr>
+			  	<tr ng-repeat="product in shoplistSet track by $index">
+			  		<td><img ng-src="{{prodSrc($index)}}" height="25px" width="25px"/>{{product.name}}</td>
+			  		<td><input style='width:50px' type='number' ng-model='product.needed' ng-change='calcShopTotal()'/></td>
+			  		<td>${{product.cost}}
+			  		<td>${{product.needed * product.cost}}</td>
+			  	</tr>
+			  </table>
+			</div>
+			  <table ng-show='gameRun'> 
+			  	<tr ng-repeat="product in shoplistSet track by $index" ng-show='product.needed>0' ng-style='styleShopList(product)'>
+			  		<td>
+			  			<!-- {{product.name}} -->
+			  			<img ng-src="{{prodSrc($index)}}" height="50px" width="50px"/><br>
+			  		</td>
+			  		<td style='padding-left:5px;font-size:200%'>x {{product.needed-product.inventory}}</td>
+			  		<td style='padding-left:20px;'>${{product.spent}}</td>
+			  	</tr>
+			  </table>
+			  <br>
+
+			    <span ng-show='junkSpent>0' style='color:#990000'>JUNK: ${{junkSpent}}<br></span>
+			  	
+
+			  	<span ng-show='gameRun'> BUDGET.... ${{levelBudget}}<br> </span>
+			  	<span ng-show='!gameRun'> BUDGET.... $<input style='width:50px' type='number' ng-model='levelBudget'/><br> </span>
+			  	<span ng-show='levelTotal>0'>TOTAL.... ${{levelTotal}}<br></span>
+
+			  	<span>LIST TOTAL.... ${{shopListTotal}}</span><br>
+			  	<span>MAX SAVINGS.... ${{levelBudget-shopListTotal}}</span><br><br>
+			  	<span ng-show='(levelBudget-levelTotal)>0 && levelTotal>0'  style='font-size:150%;color:#009900'>SAVINGS: ${{levelBudget-levelTotal}}<br></span>
+			  	<span ng-show='(levelBudget-levelTotal)<0'  style='font-size:150%;color:#990000'>OVERSPEND: ${{levelBudget-levelTotal}}<br></span>
+
+			  	<br>
+		   </div>
+
+
+		  <br>
+
+	  </div>
+	  <div class="col-md-10" style='padding-left:20px;margin:0px'>
+	  	<div id="gameBoard" ng-style="boardStyle()">
+
+	  			<div id='countDownBg' ng-if="countdown==true" style='padding:100px;text-shadow: 2px 2px #000000;'>
+	  				<span style='color:#800000;font-size:400%' ng-if='countdownStep==0'>
+	  					READY...
+	  				</span>
+	  			
+	  				<div style='color:#a0a000;font-size:600%' ng-if='countdownStep==1'>
+	 				SET...
+	 				</div>
+	 				<div style='color:#008000;font-size:900%' ng-if='countdownStep==2'>
+	 				SHOP!!!
+	 				</div>
+	  			</div>
+ 				
+ 			
+
+			<canvas id="boardCanvas" width="50" height="50" ng-click='boardClick($event)' ></canvas>
+		</div>
+	  	<center>
+
+ 			<div style='top:0px;left:20px;position:absolute;width:500px;height:500px;' ng-click='boardClick($event)'/>
+				<div ng-repeat="spawn in spawnArray track by $index" ng-style='spawnStyle(spawn)'>
+		  	  	 	<img ng-src="{{spawn.file}}"/>
+	  		  	</div>
+
+	  		  	<img ng-style='cashOutStyle(playerObj)' 
+	  		  	     ng-src="{{cashOutIcon}}",
+	  		  	     ng-show="cashOutIcon",
+	  		  	     height="50px" width="50px" ng-click="clickPlayer(playerObj)"/>
+
+	  		  	<img ng-style='playerStyle(playerObj)' 
+	  		  	     ng-src="{{playerObj.img}}",
+	  		  	     ng-show="playerObj.name",
+	  		  	     height="50px" width="50px" ng-click="clickPlayer(playerObj)"/>
+
+	  		  	<div ng-repeat="product in productArray track by $index" ng-style='productStyle(product)'>
+		  	  	 	<img ng-src="{{product.file}}" height="{{product.height}}" width="{{product.width}}" ng-click="clickProduct(product)"/>
+	  		  	</div>
+	  		  	<div ng-repeat="obj in objArray track by $index" ng-style='objStyle(obj)'>
+		  	  	 	<img ng-src="{{obj.file}}" height="{{obj.height}}" width="{{obj.width}}" ng-click="clickObj(obj)"/>
+	  		  	</div>
+	  </div>
+	  <span style='font-size:200%;'>
+	 	{{gameMsg}} 
+	  </span>
+	 </div>
+
+
+	
+	
+	<div class="row" style='padding:10px' ng-show='!gameRun'>
+	  <div class="col-md-2" >
+	  
+	  	<button class="btn btn-default" ng-click='showCtrl="tiles"' style='width:125px;'>
+	  		TILES
+	  	</button>
+
+	  	<button class="btn btn-default" ng-click='showCtrl="objs"' style='width:125px;'>
+	  		OBJECTS
+	  	</button>
+
+	  	<button class="btn btn-default" ng-click='showCtrl="products"'  style='width:125px;'>
+	  		PRODUCTS
+	  	</button>
+	  	<button class="btn btn-default" ng-click='showCtrl="spawns"'  style='width:125px;'>
+	  		SPAWNS
+	  	</button>
+	  	<span class="btn btn-default" ng-click='setDrawRotate()' >
+	  			<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+	  	</span>
+	  	<button class="btn btn-default" ng-click='showCtrl="player"' style='width:125px;'>
+	  		PLAYER
+	  	</button>
+	  	<span class="btn btn-default" ng-click='setDrawRotate()' >
+	  			<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+	  	</span>
+	  	
+	  </div>
+	  <div class="col-md-10">
+	  	<div class="btn-group" role="group" ng-show='showCtrl=="tiles"'>  
+		  <button  class="btn btn-default" ng-repeat="tile in tileSet" style="width:90px;" ng-click="selectTool('tile',tile);" 
+		  	ng-style='btStyle(tile)'>
+		  	<img ng-src="{{tile.file}}" height="50px" width="50px"/><br>
+		  	{{tile.name}}
+		  </button>
+		</div>
+
+
+
+		<div class="btn-group" role="group" ng-show='showCtrl=="objs"'>  
+		  <button  class="btn btn-default" ng-repeat="obj in objSet" style="width:90px;" ng-click="selectTool('obj',obj);" 
+		  	ng-style='btStyle(obj)'>
+		  	<img ng-src="{{obj.file}}" height="50px" width="50px"/><br>
+		  	{{obj.name}}
+		  </button>
+		</div>
+		
+		<div class="btn-group" role="group" ng-show='showCtrl=="products"'>  
+		  <button  class="btn btn-default" ng-repeat="product in productSet" style="width:90px;" ng-click="selectTool('product',product);"
+		  ng-style='btStyle(product)'>
+		  	<img ng-src="{{product.file}}" height="50px" width="50px"/><br>
+		  	{{product.name}}
+			  	<span ng-show="{{product.name!='Random'}}">
+				  	${{product.cost}}
+				</span>
+		  </button>
+		</div>
+		<div class="btn-group" role="group" ng-show='showCtrl=="spawns"'>  
+		  <button  class="btn btn-default" ng-repeat="spawn in spawnSet" style="width:90px;" ng-click="selectTool('spawn',spawn);"
+		  ng-style='btStyle(spawn)'>
+		  	<img ng-src="{{spawn.file}}" ng-style='spawnBtStyle(spawn)' height="50px" width="50px"/><br>
+		  	{{spawn.name}}
+		  </button>
+		</div>
+
+		<div class="btn-group" role="group" ng-show='showCtrl=="player"'>  
+		  <button  class="btn btn-default" ng-repeat="player in playersSet" style="width:90px;" ng-click="selectTool('player',player);">
+		  	<img ng-src="{{player.file}}" ng-style='spawnBtStyle(player)' height="50px" width="50px"/><br>
+		  	{{player.name}}
+		  </button>
+		</div>
+
+	  </div>
+	  
+	 
+	</div>
+	<row ng-show='!gameRun'>
+		
+		 <div class="col-md-12" style='display:inline' >
+		 <div ng-show='selectedTool.type=="spawn" && selectedTool.id>=0'  style='border:1px solid #aaaaaa;padding:10px;margin:10px'>
+			 <table id='selectedToolTable'>
+			 	<tr>
+			 		<td><img ng-src='{{selectedTool.file}}' ng-style='spawnBtStyle(selectedTool);'/></td>
+				 	<td class='selectedToolTableTd'><span>Name</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='text' style='text-align:left;margin-left:5px; padding-left:5px' ng-model='selectedTool.name'/></td>
+
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Speed</span></td>	
+				 	<td class='selectedToolTableTd'><input type='number' min='0' max='10' style='text-align:left;margin-left:5px; padding-left:5px;width:3em' ng-model='selectedTool.speed'/></td>
+
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Random</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='number' min='0' max='10' style='text-align:left;margin-left:5px; padding-left:5px;width:3em' ng-model='selectedTool.random'/></td>
+
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Buy</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='number' min='0' max='10' style='text-align:left;margin-left:5px; padding-left:5px;width:3em' ng-model='selectedTool.buy'/></td>
+
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>HP</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='number' min='0' max='10' style='text-align:left;margin-left:5px; padding-left:5px;width:3em' ng-model='selectedTool.hp'/></td>
+			 	<tr>
+			 </table>
+		 </div>
+		 <div   style='border:1px solid #aaaaaa;padding:10px;margin:10px' ng-show='selectedTool.type=="product" && selectedTool.id>=0'>
+			 <table id='selectedToolTable'>
+			 	<tr>
+			 		<td><img ng-src='{{selectedTool.file}}'/></td>
+				 	<td class='selectedToolTableTd'><span>Name</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='text' style='text-align:left;margin-left:5px; padding-left:5px' ng-model='selectedTool.name'/></td>
+
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Department</span></td>	
+				 	<td class='selectedToolTableTd'><input style='text-align:left;margin-left:5px; padding-left:5px;width:6em' ng-model='selectedTool.department'/></td>
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Spawn Rate</span></td>	
+				 	<td class='selectedToolTableTd'><input type='number' style='text-align:left;margin-left:5px; padding-left:5px;width:6em' ng-model='selectedTool.spawn'/></td>
+
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Cost</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='number' style='text-align:left;margin-left:5px; padding-left:5px;width:4em' ng-model='selectedTool.cost'/></td>
+				 	<td class='selectedToolTableTd'><span style='margin-left:15px;'>Id</span></td>	
+				 	<td class='selectedToolTableTd'><input style='text-align:left;margin-left:5px; padding-left:5px;width:6em' ng-model='selectedTool.id'/></td>
+			 	<tr>
+			 </table>
+		 </div>
+		  <div   style='border:1px solid #aaaaaa;padding:10px;margin:10px' ng-show='selectedTool.type=="tile" && selectedTool.id>=0'>
+			 <table id='selectedToolTable'>
+			 	<tr>
+			 		<td><img ng-src='{{selectedTool.file}}'/></td>
+				 	<td class='selectedToolTableTd'><span>Name</span>	</td>
+				 	<td class='selectedToolTableTd'><input type='text' style='text-align:left;margin-left:5px; padding-left:5px' ng-model='selectedTool.name'/></td>
+
+				 	
+			 	<tr>
+			 </table>
+		 </div>
+		
+	</row>
+	<row>
+		
+		 <div class="col-md-12" style='color:black;background-color:#aaa;display:inline' ng-show='!gameRun' >
+		 	{{levelStruct}}
+		 </div>
+	</row>
+ </div>
+</div>
+</center>

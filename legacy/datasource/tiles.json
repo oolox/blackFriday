@@ -1,0 +1,28 @@
+[
+  { "id":"0", "type":"tile", "name":"Floor", "actAs":"floor", "file":"sprites/tile1.png", "speed":10},
+  { "id":"1", "type":"tile", "name":"Wall", "actAs":"wall", "file":"sprites/tile0.png", "speed":0},
+  { "id":"2", "type":"tile", "name":"Door", "actAs":"door", "file":"sprites/tile2.png", "speed":10},
+  { "id":"3", "type":"tile", "name":"Coffee", "actAs":"speed", "ammount":"2", "file":"sprites/tile3.png", "speed":10},
+  { "id":"4", "type":"tile", "name":"25% Off", "actAs":"sale", "ammount":"0.75", "file":"sprites/tile4.png", "speed":10},
+  { "id":"5", "type":"tile", "name":"50% Off", "actAs":"sale", "ammount":"0.5", "file":"sprites/tile5.png", "speed":10},
+  { "id":"6", "type":"tile", "name":"75% Off", "actAs":"sale", "ammount":"0.25", "file":"sprites/tile6.png", "speed":10},
+  { "id":"7", "type":"tile", "name":"Wet Floor", "actAs":"slide", "ammount":"2", "file":"sprites/tile7.png", "speed":10},
+  { "id":"8", "type":"tile", "name":"Shelf", "actAs":"shelf", "file":"sprites/tile8.png", "speed":0},
+  { "id":"9", "type":"tile", "name":"Register", "actAs":"register", "file":"sprites/tile9.png", "speed":10},
+  { "id":"10", "type":"tile", "name":"Floor", "actAs":"floor", "file":"sprites/tile10.png", "speed":10},
+  { "id":"11", "type":"tile", "name":"Shelf", "actAs":"shelf", "file":"sprites/tile11.png", "speed":0},
+  { "id":"12", "type":"tile", "name":"Floor", "actAs":"floor", "file":"sprites/tile12.png", "speed":7},
+  { "id":"13", "type":"tile", "name":"Wall", "actAs":"wall", "file":"sprites/tile13.png", "speed":0},
+  { "id":"14", "type":"tile", "name":"Register", "actAs":"register", "file":"sprites/tile14.png", "speed":10},
+  { "id":"15", "type":"tile", "name":"Register", "actAs":"register", "file":"sprites/tile15.png", "speed":5},
+  { "id":"16", "type":"tile", "name":"Door", "actAs":"door", "file":"sprites/tile16.png", "speed":5},
+  { "id":"17", "type":"tile", "name":"Door", "actAs":"door", "file":"sprites/tile17.png", "speed":12},
+  { "id":"18", "type":"tile", "name":"Stopwatch", "actAs":"stopwatch", "file":"sprites/tile18.png", "speed":10},
+  { "id":"19", "type":"tile", "name":"Stopwatch", "actAs":"stopwatch", "file":"sprites/tile19.png", "speed":7},
+  { "id":"20", "type":"tile", "name":"Stopwatch", "actAs":"stopwatch", "file":"sprites/tile20.png", "speed":10},
+  { "id":"21", "type":"tile", "name":"Coffee", "actAs":"speed", "file":"sprites/tile21.png", "speed":10},
+  { "id":"22", "type":"tile", "name":"Coffee", "actAs":"speed", "file":"sprites/tile22.png", "speed":10},
+  { "id":"22", "type":"tile", "name":"Wet Floor", "actAs":"slide", "file":"sprites/tile23.png", "speed":10}
+               
+
+]

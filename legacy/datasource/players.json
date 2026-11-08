@@ -1,0 +1,4 @@
+[ 
+  { "id":"0", "name":"Player 1", "file":"sprites/player1.png", "dead":"sprites/player1_dead.png", "shop":"sprites/player1_shop.png",
+    "speed":5, "buffCtr":0,  "posObj":{ "tileX":0, "tileY":0, "offsetX":0, "offsetY":0 } }
+]
